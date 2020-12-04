@@ -13,7 +13,7 @@ html, body {
     transform: translate(-50%,-50%);
     /*end centering */
     width: 500px;
-    height: 600px;
+    height: 590px;
     padding: 5px;
     margin: 0 auto;
     background-color: #ddd;
@@ -57,7 +57,7 @@ html, body {
     position: relative;
 }
 #historyMsg {
-    height: 400px;
+    height: 395px;
     background-color: #fff;
     overflow: auto;
     padding: 2px;
@@ -93,13 +93,13 @@ html, body {
 #messageInput {
     width: 440px;
     max-width: 440px;
-    height: 54px;
-    max-height: 54px;
+    height: 50px;
+    max-height: 50px;
     float:left;
 }
 #sendBtn {
     width: 50px;
-    height: 60px;
+    height: 56px;
     float: right;
 }
 #emojiWrapper {
