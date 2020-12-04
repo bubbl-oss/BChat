@@ -61,6 +61,7 @@ html, body {
     background-color: #fff;
     overflow: auto;
     padding: 2px;
+    word-wrap: break-word;
 }
 #historyMsg img {
     max-width: 99%;
