@@ -5,7 +5,7 @@ html, body {
 }
 .wrapper {
     width: 500px;
-    height: 640px;
+    height: 600px;
     padding: 5px;
     margin: 0 auto;
     background-color: #ddd;
@@ -75,13 +75,13 @@ html, body {
 #messageInput {
     width: 440px;
     max-width: 440px;
-    height: 90px;
-    max-height: 90px;
+    height: 54px;
+    max-height: 54px;
     float:left;
 }
 #sendBtn {
     width: 50px;
-    height: 96px;
+    height: 60px;
     float: right;
 }
 #emojiWrapper {
