@@ -6,23 +6,23 @@
  *see it in action:http://hichat.herokuapp.com/
  */
 window.onload = function() {
-    var hichat = new HiChat();
-    hichat.init();
+    var bchat = new BChat();
+    bchat.init();
 };
-var HiChat = function() {
+var BChat = function() {
     this.socket = null;
 };
-HiChat.prototype = {
+BChat.prototype = {
     init: function() {
         var that = this;
         this.socket = io.connect();
         this.socket.on('connect', function() {
-            document.getElementById('info').textContent = 'get yourself a nickname :)';
+            document.getElementById('info').textContent = 'Enter a nickname';
             document.getElementById('nickWrapper').style.display = 'block';
             document.getElementById('nicknameInput').focus();
         });
         this.socket.on('nickExisted', function() {
-            document.getElementById('info').textContent = '!nickname is taken, choose another pls';
+            document.getElementById('info').textContent = 'Nickname is taken, choose another, please';
         });
         this.socket.on('loginSuccess', function() {
             document.title = 'hichat | ' + document.getElementById('nicknameInput').value;
