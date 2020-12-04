@@ -1,10 +1,3 @@
-/*
- *hichat v0.4.2
- *Wayou Mar 28,2014
- *MIT license
- *view on GitHub:https://github.com/wayou/HiChat
- *see it in action:http://hichat.herokuapp.com/
- */
 window.onload = function() {
     var bchat = new BChat();
     bchat.init();
@@ -25,7 +18,7 @@ BChat.prototype = {
             document.getElementById('info').textContent = 'Nickname is taken, choose another, please';
         });
         this.socket.on('loginSuccess', function() {
-            document.title = 'hichat | ' + document.getElementById('nicknameInput').value;
+            document.title = 'BChat | ' + document.getElementById('nicknameInput').value;
             document.getElementById('loginWrapper').style.display = 'none';
             document.getElementById('messageInput').focus();
         });
@@ -38,7 +31,7 @@ BChat.prototype = {
         });
         this.socket.on('system', function(nickName, userCount, type) {
             var msg = nickName + (type == 'login' ? ' joined' : ' left');
-            that._displayNewMsg('system ', msg, 'red');
+            that._displayNewMsg('System ', msg, 'red');
             document.getElementById('status').textContent = userCount + (userCount > 1 ? ' users' : ' user') + ' online';
         });
         this.socket.on('newMsg', function(user, msg, color) {
@@ -94,7 +87,7 @@ BChat.prototype = {
                     reader = new FileReader(),
                     color = document.getElementById('colorStyle').value;
                 if (!reader) {
-                    that._displayNewMsg('system', '!your browser doesn\'t support fileReader', 'red');
+                    that._displayNewMsg('System', 'Your browser doesn\'t support fileReader', 'red');
                     this.value = '';
                     return;
                 };
