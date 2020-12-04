@@ -19,14 +19,6 @@ html, body {
     background-color: #ddd;
 }
 #loginWrapper {
-    /* start centering */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translateX(-50%) translateY(-50%);
-    -webkit-transform: translate(-50%,-50%);
-    transform: translate(-50%,-50%);
-    /*end centering */
     position: fixed;
     top: 0;
     right: 0;
@@ -39,7 +31,25 @@ html, body {
     padding-top: 200px;
 }
 #nickWrapper {
+    /* start centering */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    /*end centering */
     display: none;
+}
+#info {
+    /* start centering */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    /*end centering */   
 }
 .banner {
     height: 80px;
