@@ -4,6 +4,14 @@ html, body {
     font-family: sans-serif;
 }
 .wrapper {
+    /* start centering */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    /*end centering */
     width: 500px;
     height: 600px;
     padding: 5px;
@@ -11,6 +19,14 @@ html, body {
     background-color: #ddd;
 }
 #loginWrapper {
+    /* start centering */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    /*end centering */
     position: fixed;
     top: 0;
     right: 0;
