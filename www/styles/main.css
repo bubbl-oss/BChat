@@ -13,7 +13,7 @@ html, body {
     transform: translate(-50%,-50%);
     /*end centering */
     width: 500px;
-    height: 590px;
+    height: 586px;
     padding: 5px;
     margin: 0 auto;
     background-color: #ddd;
@@ -57,7 +57,7 @@ html, body {
     position: relative;
 }
 #historyMsg {
-    height: 395px;
+    height: 390px;
     background-color: #fff;
     overflow: auto;
     padding: 2px;
