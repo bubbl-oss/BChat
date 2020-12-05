@@ -201,5 +201,5 @@ BChat.prototype = {
 
   String.prototype['autoLink'] = autoLink;
 
-}).call(this);
+}).call(this)
 };
