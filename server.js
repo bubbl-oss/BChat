@@ -4,12 +4,32 @@ const express = require("express"),
   io = require("socket.io")(server),
   users = [];
 //specify the html we will use
+let setCache = function (req, res, next) {
+  // here you can define period in second, this one is 5 minutes
+  const period = 60 * 5;
+
+  // you only want to cache for GET requests
+  if (req.method == "GET") {
+    res.set("Cache-control", `public, max-age=${period}, must-revalidate`);
+  } else {
+    // for the other requests set strict no caching parameters
+    res.set("Cache-control", `no-store`);
+  }
+
+  // remember to call next() to pass on the request
+  next();
+};
+
+// now call the new middleware function in your app
+
+app.use(setCache);
 app.use("/", express.static(__dirname + "/www"));
 //bind the server to the 80 port
 //server.listen(3000);//for local test
 //server.listen(process.env.OPENSHIFT_NODEJS_PORT || 3000);//publish to openshift
 //console.log('server started on port'+process.env.PORT || 3000);
 //handle the socket
+
 const port = process.env.PORT || 3000;
 io.on("connection", function (socket) {
   //new user login
