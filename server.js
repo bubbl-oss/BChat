@@ -20,7 +20,7 @@ io.on("connection", function (socket) {
       //socket.userIndex = users.length;
       socket.nickname = nickname;
       users.push(nickname);
-      socket.emit("loginSuccess");
+      socket.emit("loginSuccess", nickname);
       io.sockets.emit("system", nickname, users.length, "login");
     }
   });
