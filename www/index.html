@@ -5,42 +5,87 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bubbl Chat</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="styles/main.css" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
   </head>
   <body>
-    <div class="wrapper">
-      <div class="banner">
-        <h1>Bubbl Chat</h1>
+    <div class="container">
+      <div
+        class="align-items-center d-flex header justify-content-center text-center"
+        id="header"
+      >
+        <h5 class="mb-0 d-inline-block">
+          <img src="/img/logo.png" alt="bubbl chat icon" /> Bubbl Chat
+        </h5>
+        &nbsp;&#8226;&nbsp;
         <span id="status"></span>
       </div>
-      <div id="historyMsg"></div>
-      <div class="controls">
-        <div class="items">
-          <input
-            id="colorStyle"
-            type="color"
-            placeholder="#000"
-            title="font color"
-          />
-          <input id="emoji" type="button" value="emoji" title="emoji" />
-          <label for="sendImage" class="imageLable">
-            <input type="button" value="image" />
-            <input id="sendImage" type="file" value="image" />
-          </label>
-          <input
-            id="clearBtn"
-            type="button"
-            value="clear"
-            title="clear screen"
-          />
+
+      <div id="main" class="rounded">
+        <div id="historyMsg"></div>
+      </div>
+
+      <div
+        class="controls footer d-flex justify-content-center flex-column"
+        style="z-index: 1"
+        id="footer"
+      >
+        <div class="container">
+          <div class="items">
+            <input
+              id="colorStyle"
+              type="color"
+              placeholder="#000"
+              title="font color"
+            />
+            <input id="emoji" type="button" value="emoji" title="emoji" />
+            <label for="sendImage" class="imageLable">
+              <input type="button" value="image" />
+              <input id="sendImage" type="file" value="image" />
+            </label>
+            <input
+              id="clearBtn"
+              type="button"
+              value="clear"
+              title="clear screen"
+            />
+          </div>
+          <div class="input-group my-2" style="flex-wrap: initial">
+            <input
+              type="text"
+              class="form-control purple-border"
+              id="messageInput"
+              placeholder="Enter to send"
+              aria-label="Recipient's username"
+              aria-describedby="button-addon2"
+            />
+            <button
+              class="btn purple-border purple-text"
+              type="button"
+              id="sendBtn"
+            >
+              Button
+            </button>
+          </div>
+          <div id="emojiWrapper"></div>
         </div>
-        <textarea id="messageInput" placeholder="enter to send"></textarea>
-        <input id="sendBtn" type="button" value="SEND" />
-        <div id="emojiWrapper"></div>
+        <!-- <footer>
+          <small
+            >contribute on github<a href="https://github.com/bubbl-oss/BChat"
+              >GitHub</a
+            ></small
+          >
+        </footer> -->
       </div>
     </div>
+
     <div id="loginWrapper">
       <div id="center">
         <p id="info">connecting to server...</p>
@@ -55,15 +100,13 @@
         </div>
       </div>
     </div>
-    <footer>
-      <small
-        >contribute on github<a href="https://github.com/bubbl-oss/BChat"
-          >GitHub</a
-        ></small
-      >
-    </footer>
     <script src="/socket.io/socket.io.js"></script>
     <script src="scripts/autolink.js"></script>
     <script src="scripts/bchat.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js"
+      integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

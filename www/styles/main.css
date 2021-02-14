@@ -1,125 +1,140 @@
-html, body {
-    margin: 0;
-    background-color: #efefef;
-    font-family: sans-serif;
+html,
+body {
+  height: 100%;
+  width: 100%;
 }
-.wrapper {
-    /* start centering */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translateX(-50%) translateY(-50%);
-    -webkit-transform: translate(-50%,-50%);
-    transform: translate(-50%,-50%);
-    /*end centering */
-    width: 500px;
-    height: 586px;
-    padding: 5px;
-    margin: 0 auto;
-    background-color: #ddd;
+/* All these table centering styles from: https://stackoverflow.com/a/209729/10382407 */
+body {
+  display: table;
 }
-#loginWrapper {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(5, 5, 5, .6);
-    text-align: center;
-    color: #fff;
-    display: block;
-    padding-top: 200px;
+.layout-div {
+  display: table-row;
 }
-#nickWrapper {
-    display: none;
+#content {
+  display: table-cell;
+  vertical-align: middle;
 }
-#center {
-    /* start centering */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translateX(-50%) translateY(-50%);
-    -webkit-transform: translate(-50%,-50%);
-    transform: translate(-50%,-50%);
-    /*end centering */   
+#header {
+  height: 60px;
 }
-.banner {
-    height: 80px;
-    width: 100%;
+
+#footer {
+  height: 100px;
 }
-.banner p {
-    float: left;
-    display: inline-block;
+
+/* From https://stackoverflow.com/a/37015607/10382407 VERY USEFUL. thank you Jesus! */
+#main {
+  height: calc(100vh - 160px);
+  display: flex;
+  flex-direction: column;
+  border: var(--bs-purple) dashed 2px;
 }
-.controls {
-    height: 100px;
-    margin: 5px 0px;
-    position: relative;
-}
+
 #historyMsg {
-    height: 390px;
-    background-color: #fff;
-    overflow: auto;
-    padding: 2px;
-    word-wrap: break-word;
+  height: calc(100vh - 160px);
+  background-color: #fff;
+  overflow: auto;
+  padding: 2px;
+  word-wrap: break-word;
 }
 #historyMsg img {
-    max-width: 99%;
+  max-width: 99%;
 }
+
+.purple-border {
+  border-color: var(--bs-purple) !important;
+  border: solid 1px !important;
+}
+
+.purple-text {
+  color: var(--bs-purple) !important;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  margin: 0 auto;
+  background-color: #ddd;
+}
+#loginWrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(5, 5, 5, 0.6);
+  text-align: center;
+  color: #fff;
+  display: block;
+  padding-top: 200px;
+  z-index: 10;
+}
+#nickWrapper {
+  display: none;
+}
+#center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+.banner {
+  height: 80px;
+  width: 100%;
+}
+.banner p {
+  float: left;
+  display: inline-block;
+}
+
 .timespan {
-    color: #ddd;
+  color: #ddd;
 }
 .items {
-    height: 30px;
+  height: 30px;
 }
 #colorStyle {
-    width: 50px;
-    border: none;
-    padding: 0;
+  width: 50px;
+  border: none;
+  padding: 0;
 }
-/*custom the file input*/
 
 .imageLable {
-    position: relative;
+  position: relative;
 }
 #sendImage {
-    position: absolute;
-    width: 52px;
-    left: 0;
-    opacity: 0;
-    overflow: hidden;
+  position: absolute;
+  width: 52px;
+  left: 0;
+  opacity: 0;
+  overflow: hidden;
 }
-/*end custom file input*/
 
 #messageInput {
-    width: 440px;
-    max-width: 440px;
-    height: 50px;
-    max-height: 50px;
-    float:left;
-}
-#sendBtn {
-    width: 50px;
-    height: 56px;
-    float: right;
+  width: auto;
+  /* max-width: 440px; */
+  max-height: 50px;
 }
 #emojiWrapper {
-    display: none;
-    width: 500px;
-    bottom: 105px;
-    position: absolute;
-    background-color: #aaa;
-    box-shadow: 0 0 10px #555;
+  display: none;
+  width: 500px;
+  bottom: 105px;
+  position: absolute;
+  background-color: #aaa;
+  box-shadow: 0 0 10px #555;
 }
 #emojiWrapper img {
-    margin: 2px;
-    padding: 2px;
-    width: 25px;
-    height: 25px;
+  margin: 2px;
+  padding: 2px;
+  width: 25px;
+  height: 25px;
 }
 #emojiWrapper img:hover {
-    background-color: blue;
+  background-color: blue;
 }
-.emoji{
-    display: inline;
+.emoji {
+  display: inline;
 }

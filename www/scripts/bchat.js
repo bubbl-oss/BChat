@@ -10,17 +10,25 @@ BChat.prototype = {
     var that = this;
     this.socket = io.connect();
     this.socket.on("connect", function () {
-      document.getElementById("info").textContent = "Enter a nickname";
-      document.getElementById("nickWrapper").style.display = "block";
-      document.getElementById("nicknameInput").focus();
+      let nickname = localStorage.getItem("bubbl-chat-user");
+
+      if (nickname) {
+        // if user exists, umm still send login request though.
+        that.socket.emit("login", nickname);
+      } else {
+        document.getElementById("info").textContent = "Enter a nickname";
+        document.getElementById("nickWrapper").style.display = "block";
+        document.getElementById("nicknameInput").focus();
+      }
     });
     this.socket.on("nickExisted", function () {
       document.getElementById("info").textContent =
         "Nickname is taken, choose another, please";
     });
-    this.socket.on("loginSuccess", function () {
-      document.title =
-        "Bubbl Chat | " + document.getElementById("nicknameInput").value;
+    this.socket.on("loginSuccess", function (nickname) {
+      document.title = `Bubbl Chat | ${nickname}`;
+      // save in localstorage:
+      localStorage.setItem("bubbl-chat-user", nickname);
       document.getElementById("loginWrapper").style.display = "none";
       document.getElementById("messageInput").focus();
     });
@@ -34,8 +42,7 @@ BChat.prototype = {
     this.socket.on("system", function (nickName, userCount, type) {
       var msg = nickName + (type == "login" ? " joined" : " left");
       that._displayNewMsg("System ", msg, "red");
-      document.getElementById("status").textContent =
-        userCount + (userCount > 1 ? " users" : " user") + " online";
+      document.getElementById("status").textContent = `${userCount} online`;
     });
     this.socket.on("newMsg", function (user, msg, color) {
       that._displayNewMsg(user, msg, color);
@@ -58,7 +65,7 @@ BChat.prototype = {
     document.getElementById("nicknameInput").addEventListener(
       "keyup",
       function (e) {
-        if (e.keyCode == 13) {
+        if (e.key == 13) {
           var nickName = document.getElementById("nicknameInput").value;
           if (nickName.trim().length != 0) {
             that.socket.emit("login", nickName);
@@ -74,7 +81,7 @@ BChat.prototype = {
           msg = messageInput.value,
           color = document.getElementById("colorStyle").value;
         messageInput.value = "";
-        messageInput.focus();
+        // messageInput.focus();
         if (msg.trim().length != 0) {
           that.socket.emit("postMsg", msg, color);
           that._displayNewMsg("me", msg, color);
