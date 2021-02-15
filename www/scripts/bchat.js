@@ -1,7 +1,3 @@
-window.onload = function () {
-  var bchat = new BChat();
-  bchat.init();
-};
 var BChat = function () {
   this.socket = null;
 };
@@ -186,6 +182,9 @@ BChat.prototype = {
       msg = this._showEmoji(msg);
     msg.autoLink({ target: "_blank", rel: "noopener noreferrer" });
     msgToDisplay.style.color = color || "#000";
+    if (user == "me") {
+      msgToDisplay.setAttribute("class", "ms-auto my-msg");
+    }
     msgToDisplay.innerHTML =
       user + '<span class="timespan">(' + date + "): </span>" + msg;
     container.appendChild(msgToDisplay);

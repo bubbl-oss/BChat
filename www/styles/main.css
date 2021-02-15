@@ -49,7 +49,12 @@ body {
 .purple-text {
   color: var(--bs-purple) !important;
 }
-
+.my-msg {
+  word-break: break-all;
+  max-width: 45%;
+  white-space: pre-line;
+  text-align: right;
+}
 .wrapper {
   width: 100%;
   height: 100%;
