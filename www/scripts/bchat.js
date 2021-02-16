@@ -3,68 +3,68 @@ var BChat = function () {
 };
 BChat.prototype = {
   init: function () {
-    var that = this;
+    var self = this;
     this.socket = io.connect();
     this.socket.on("connect", function () {
       let nickname = localStorage.getItem("bubbl-chat-user");
 
       if (nickname) {
         // if user exists, umm still send login request though.
-        that.socket.emit("login", nickname);
+        self.socket.emit("login", nickname);
       } else {
         document.getElementById("info").textContent = "Enter a nickname";
-        document.getElementById("nickWrapper").style.display = "block";
-        document.getElementById("nicknameInput").focus();
+        document.getElementById("nickname-wrapper").style.display = "block";
+        document.getElementById("nickname-input").focus();
       }
     });
-    this.socket.on("nickExisted", function () {
+    this.socket.on("nickname-exists", function () {
       document.getElementById("info").textContent =
         "Nickname is taken, choose another, please";
     });
-    this.socket.on("loginSuccess", function (nickname) {
+    this.socket.on("login-success", function (nickname) {
       document.title = `Bubbl Chat | ${nickname}`;
       // save in localstorage:
       localStorage.setItem("bubbl-chat-user", nickname);
-      document.getElementById("loginWrapper").style.display = "none";
-      document.getElementById("messageInput").focus();
+      document.getElementById("login-wrapper").style.display = "none";
+      document.getElementById("message-input").focus();
     });
     this.socket.on("error", function (err) {
-      if (document.getElementById("loginWrapper").style.display == "none") {
+      if (document.getElementById("login-wrapper").style.display == "none") {
         document.getElementById("status").textContent = "!fail to connect :(";
       } else {
         document.getElementById("info").textContent = "!fail to connect :(";
       }
     });
-    this.socket.on("system", function (nickName, userCount, type) {
-      var msg = nickName + (type == "login" ? " joined" : " left");
-      that._displayNewMsg("System ", msg, "red");
+    this.socket.on("system", function (nickname, userCount, type) {
+      var msg = nickname + (type == "login" ? " joined" : " left");
+      self._displayNewMsg("System ", msg, "red");
       document.getElementById("status").textContent = `${userCount} online`;
     });
-    this.socket.on("newMsg", function (user, msg, color) {
-      that._displayNewMsg(user, msg, color);
+    this.socket.on("new-msg", function (user, msg, color) {
+      self._displayNewMsg(user, msg, color);
     });
-    this.socket.on("newImg", function (user, img, color) {
-      that._displayImage(user, img, color);
+    this.socket.on("new-img", function (user, img, color) {
+      self._displayImage(user, img, color);
     });
     document.getElementById("loginBtn").addEventListener(
       "click",
       function () {
-        var nickName = document.getElementById("nicknameInput").value;
-        if (nickName.trim().length != 0) {
-          that.socket.emit("login", nickName);
+        var nickname = document.getElementById("nickname-input").value;
+        if (nickname.trim().length != 0) {
+          self.socket.emit("login", nickname);
         } else {
-          document.getElementById("nicknameInput").focus();
+          document.getElementById("nickname-input").focus();
         }
       },
       false
     );
-    document.getElementById("nicknameInput").addEventListener(
+    document.getElementById("nickname-input").addEventListener(
       "keyup",
       function (e) {
         if (e.key == 13) {
-          var nickName = document.getElementById("nicknameInput").value;
-          if (nickName.trim().length != 0) {
-            that.socket.emit("login", nickName);
+          var nickname = document.getElementById("nickname-input").value;
+          if (nickname.trim().length != 0) {
+            self.socket.emit("login", nickname);
           }
         }
       },
@@ -73,29 +73,29 @@ BChat.prototype = {
     document.getElementById("sendBtn").addEventListener(
       "click",
       function () {
-        var messageInput = document.getElementById("messageInput"),
-          msg = messageInput.value,
-          color = document.getElementById("colorStyle").value;
+        var messageInput = document.getElementById("message-input"),
+          msg = message - input.value,
+          color = document.getElementById("color-style").value;
         messageInput.value = "";
-        // messageInput.focus();
+        // message-input.focus();
         if (msg.trim().length != 0) {
-          that.socket.emit("postMsg", msg, color);
-          that._displayNewMsg("me", msg, color);
+          self.socket.emit("post-msg", msg, color);
+          self._displayNewMsg("me", msg, color);
           return;
         }
       },
       false
     );
-    document.getElementById("messageInput").addEventListener(
+    document.getElementById("message-input").addEventListener(
       "keyup",
       function (e) {
-        var messageInput = document.getElementById("messageInput"),
-          msg = messageInput.value,
-          color = document.getElementById("colorStyle").value;
+        var messageInput = document.getElementById("message-input"),
+          msg = message - input.value,
+          color = document.getElementById("color-style").value;
         if (e.keyCode == 13 && msg.trim().length != 0) {
           messageInput.value = "";
-          that.socket.emit("postMsg", msg, color);
-          that._displayNewMsg("me", msg, color);
+          self.socket.emit("post-msg", msg, color);
+          self._displayNewMsg("me", msg, color);
         }
       },
       false
@@ -103,19 +103,19 @@ BChat.prototype = {
     document.getElementById("clearBtn").addEventListener(
       "click",
       function () {
-        document.getElementById("historyMsg").innerHTML = "";
+        document.getElementById("chats").innerHTML = "";
       },
       false
     );
-    document.getElementById("sendImage").addEventListener(
+    document.getElementById("send-image").addEventListener(
       "change",
       function () {
         if (this.files.length != 0) {
           var file = this.files[0],
             reader = new FileReader(),
-            color = document.getElementById("colorStyle").value;
+            color = document.getElementById("color-style").value;
           if (!reader) {
-            that._displayNewMsg(
+            self._displayNewMsg(
               "System",
               "Your browser doesn't support fileReader",
               "red"
@@ -125,8 +125,8 @@ BChat.prototype = {
           }
           reader.onload = function (e) {
             this.value = "";
-            that.socket.emit("img", e.target.result, color);
-            that._displayImage("me", e.target.result, color);
+            self.socket.emit("img", e.target.result, color);
+            self._displayImage("me", e.target.result, color);
           };
           reader.readAsDataURL(file);
         }
@@ -137,24 +137,24 @@ BChat.prototype = {
     document.getElementById("emoji").addEventListener(
       "click",
       function (e) {
-        var emojiwrapper = document.getElementById("emojiWrapper");
-        emojiwrapper.style.display = "block";
+        var emojiWrapper = document.getElementById("emoji-wrapper");
+        emojiWrapper.style.display = "block";
         e.stopPropagation();
       },
       false
     );
     document.body.addEventListener("click", function (e) {
-      var emojiwrapper = document.getElementById("emojiWrapper");
-      if (e.target != emojiwrapper) {
-        emojiwrapper.style.display = "none";
+      var emojiWrapper = document.getElementById("emoji-wrapper");
+      if (e.target != emojiWrapper) {
+        emojiWrapper.style.display = "none";
       }
     });
-    document.getElementById("emojiWrapper").addEventListener(
+    document.getElementById("emoji-wrapper").addEventListener(
       "click",
       function (e) {
         var target = e.target;
         if (target.nodeName.toLowerCase() == "img") {
-          var messageInput = document.getElementById("messageInput");
+          var messageInput = document.getElementById("message-input");
           messageInput.focus();
           messageInput.value =
             messageInput.value + "[emoji:" + target.title + "]";
@@ -164,7 +164,7 @@ BChat.prototype = {
     );
   },
   _initialEmoji: function () {
-    var emojiContainer = document.getElementById("emojiWrapper"),
+    var emojiContainer = document.getElementById("emoji-wrapper"),
       docFragment = document.createDocumentFragment();
     for (var i = 69; i > 0; i--) {
       var emojiItem = document.createElement("img");
@@ -175,7 +175,7 @@ BChat.prototype = {
     emojiContainer.appendChild(docFragment);
   },
   _displayNewMsg: function (user, msg, color) {
-    var container = document.getElementById("historyMsg"),
+    var container = document.getElementById("chats"),
       msgToDisplay = document.createElement("p"),
       date = new Date().toTimeString().substr(0, 8),
       //determine whether the msg contains emoji
@@ -191,7 +191,7 @@ BChat.prototype = {
     container.scrollTop = container.scrollHeight;
   },
   _displayImage: function (user, imgData, color) {
-    var container = document.getElementById("historyMsg"),
+    var container = document.getElementById("chats"),
       msgToDisplay = document.createElement("p"),
       date = new Date().toTimeString().substr(0, 8);
     msgToDisplay.style.color = color || "#000";
@@ -213,7 +213,7 @@ BChat.prototype = {
       result = msg,
       reg = /\[emoji:\d+\]/g,
       emojiIndex,
-      totalEmojiNum = document.getElementById("emojiWrapper").children.length;
+      totalEmojiNum = document.getElementById("emoji-wrapper").children.length;
     while ((match = reg.exec(msg))) {
       emojiIndex = match[0].slice(7, -1);
       if (emojiIndex > totalEmojiNum) {

@@ -43,7 +43,7 @@
       </div>
 
       <div id="main" class="rounded">
-        <div id="historyMsg"></div>
+        <div id="chats"></div>
       </div>
 
       <div
@@ -54,7 +54,7 @@
         <div class="container">
           <div class="items">
             <input
-              id="colorStyle"
+              id="color-style"
               type="color"
               placeholder="#000"
               title="font color"
@@ -89,16 +89,16 @@
                 Logout
               </button>
             </div>
-            <label for="sendImage" class="imageLable">
+            <label for="send-image" class="image-label">
               <input type="button" value="image" />
-              <input id="sendImage" type="file" value="image" />
+              <input id="send-image" type="file" value="image" />
             </label>
           </div>
           <div class="input-group my-2" style="flex-wrap: initial">
             <input
               type="text"
               class="form-control purple-border"
-              id="messageInput"
+              id="message-input"
               placeholder="Enter to send"
               aria-label="Recipient's username"
               aria-describedby="button-addon2"
@@ -111,24 +111,24 @@
               Send
             </button>
           </div>
-          <div id="emojiWrapper"></div>
+          <div id="emoji-wrapper"></div>
         </div>
       </div>
     </div>
 
-    <div id="loginWrapper">
+    <div id="login-wrapper">
       <div id="center">
         <p id="info">connecting to server...</p>
         <div id="error-notif" class="alert alert-danger" style="display: none">
           Something went wrong. You must use the first part of your AUN email:
           [firstname.lastname]@aun.edu.ng. Reload page to try again.
         </div>
-        <div id="nickWrapper">
+        <div id="nickname-wrapper">
           <input
             type="text"
             autocomplete="off"
             placeholder="nickname"
-            id="nicknameInput"
+            id="nickname-input"
           />
           <input type="button" value="OK" id="loginBtn" />
         </div>
@@ -139,7 +139,6 @@
     <script src="scripts/bchat.js"></script>
     <script src="https://auther.mybubbl.me/js/auth.js?v=0.1.0"></script>
     <script>
-      // https://zlez6i.deta.dev
       window.onload = function () {
         var Auth = new BubblAuth("https://auther.mybubbl.me");
 
@@ -150,7 +149,7 @@
             bchat.init();
           })
           .catch((err) => {
-            console.error("Error loggin in! Try again?", err);
+            console.error("Error logging in! Try again?", err);
             document.getElementById("error-notif").style.display = "block";
           });
       };

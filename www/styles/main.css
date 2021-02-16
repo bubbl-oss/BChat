@@ -30,14 +30,14 @@ body {
   border: var(--bs-purple) dashed 2px;
 }
 
-#historyMsg {
+#chats {
   height: calc(100vh - 160px);
   background-color: #fff;
   overflow: auto;
   padding: 2px;
   word-wrap: break-word;
 }
-#historyMsg img {
+#chats img {
   max-width: 99%;
 }
 
@@ -62,7 +62,7 @@ body {
   margin: 0 auto;
   background-color: #ddd;
 }
-#loginWrapper {
+#login-wrapper {
   position: fixed;
   top: 0;
   right: 0;
@@ -75,7 +75,7 @@ body {
   padding-top: 200px;
   z-index: 10;
 }
-#nickWrapper {
+#nickname-wrapper {
   display: none;
 }
 #center {
@@ -101,16 +101,16 @@ body {
 .items {
   height: 30px;
 }
-#colorStyle {
+#color-style {
   width: 50px;
   border: none;
   padding: 0;
 }
 
-.imageLable {
+.image-label {
   position: relative;
 }
-#sendImage {
+#send-image {
   position: absolute;
   width: 52px;
   left: 0;
@@ -118,12 +118,12 @@ body {
   overflow: hidden;
 }
 
-#messageInput {
+#message-input {
   width: auto;
   /* max-width: 440px; */
   max-height: 50px;
 }
-#emojiWrapper {
+#emoji-wrapper {
   display: none;
   width: 500px;
   bottom: 105px;
@@ -131,13 +131,13 @@ body {
   background-color: #aaa;
   box-shadow: 0 0 10px #555;
 }
-#emojiWrapper img {
+#emoji-wrapper img {
   margin: 2px;
   padding: 2px;
   width: 25px;
   height: 25px;
 }
-#emojiWrapper img:hover {
+#emoji-wrapper img:hover {
   background-color: blue;
 }
 .emoji {
