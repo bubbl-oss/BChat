@@ -1,0 +1,9 @@
+<% layout('layout.eta') %>
+
+<h2>Welcome to Bubbl chat!</h2>
+
+<button onclick="login()">Start chatting</button>
+<div id="error-notif" class="alert alert-danger" style="display: none">
+  Something went wrong. You must use the first part of your AUN email:
+  [firstname.lastname]@aun.edu.ng. Reload page to try again.
+</div>

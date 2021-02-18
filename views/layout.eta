@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <title>Bubbl Chat</title>
+    <meta name="description" content="Classified ads for AUN" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- <link rel="stylesheet" href="https://unpkg.com/chota@latest" /> -->
+
+    <!-- <link rel="stylesheet" type="text/css" href="/styles.css" /> -->
+  </head>
+
+  <body>
+    <header
+      class="container text-center"
+      style="font-size: smaller; text-align: center"
+    >
+      <span> <%= typeof user_id != 'undefined' ? user_id : 'norms' %> </span>
+
+      <% if (loggedIn) { %>
+      <button onclick="logout()">logout</button>
+      <% } %>
+    </header>
+
+    <main class="container"><%~ body %></main>
+
+    <script src="http://localhost:5000/js/auth.js"></script>
+    <!-- <div>
+        <script src="https://auther.mybubbl.me/js/auth.js?v=0.1.0"></script>
+    </div> -->
+    <script>
+      var login = function () {
+        var Auth = new BubblAuth('http://localhost:5000');
+
+        Auth.login()
+          .then((data) => {
+            console.log('Authenticated successfully! => ' + data);
+            // after successful login, tell the server.
+            //
+            window.location = `/login?user=${data}&token=correct2021`;
+          })
+          .catch((err) => {
+            console.error('Error logging in! Try again?', err);
+            document.getElementById('error-notif').style.display = 'block';
+          });
+      };
+
+      var logout = function () {
+        var Auth = new BubblAuth('http://localhost:5000');
+
+        Auth.logout()
+          .then((data) => {
+            console.log('Logged out successfully! => ' + data);
+            // after successful logout, tell the server.
+            //
+            window.location = `/logout?user=${data}&token=correct2021`;
+          })
+          .catch((err) => {
+            console.error('Error logging in! Try again?', err);
+            document.getElementById('error-notif').style.display = 'block';
+          });
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+<% layout('layout.eta') %>
+
+<div>Error! Please try again or somn</div>
+
+<p><%= error || 'UNKNOWN ERROR!' %></p>
