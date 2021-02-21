@@ -1,9 +1,17 @@
 <% layout('layout.eta') %>
 
-<h2>Welcome to Bubbl chat!</h2>
+<main class="container text-center">
+  <h2 class="mt-3">Welcome to Bubbl chat!</h2>
+  <% if (typeof loggedIn != 'undefined') { %>
+  <a class="btn btn-info" href="/app">Lobby</a>
+  <% } else { %>
+  <button class="btn btn-success" onclick="login()">Start chatting</button>
+  <% } %>
 
-<button onclick="login()">Start chatting</button>
-<div id="error-notif" class="alert alert-danger" style="display: none">
-  Something went wrong. You must use the first part of your AUN email:
-  [firstname.lastname]@aun.edu.ng. Reload page to try again.
-</div>
+  <p class="mt-2 text-muted">BChat is a work in progress :)</p>
+
+  <div id="error-notif" class="alert alert-danger" style="display: none">
+    Something went wrong. You must use the first part of your AUN email:
+    [firstname.lastname]@aun.edu.ng. Reload page to try again.
+  </div>
+</main>
