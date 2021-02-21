@@ -1,69 +1,106 @@
 var BChat = function () {
   this.socket = null;
-  this.currentUser = null;
+  this.nickname = null;
+  this.context = 'lobby';
+  this.id = null;
 };
 BChat.prototype = {
   init: function () {
     var self = this;
     this.socket = io.connect();
     this.socket.on('connect', function () {
-      let nickname = localStorage.getItem('bubbl-chat-username');
-
-      if (nickname) {
-        // if user exists, umm still send login request though.
-        self.socket.emit('login', nickname);
-      } else {
-        // document.getElementById("info").textContent = "Enter a nickname";
-        // document.getElementById("nickname-wrapper").style.display = "block";
-        // document.getElementById("nickname-input").focus();
-        self.socket.emit('get-nickname');
+      self.socket.emit('user:login');
+    });
+    this.socket.on('system:nickname-exists', function () {
+      if (self.getContext('chatroom')) {
+        document.getElementById('info').textContent =
+          'Nickname is taken, choose another, please';
       }
     });
-    this.socket.on('nickname-exists', function () {
-      document.getElementById('info').textContent =
-        'Nickname is taken, choose another, please';
+    this.socket.on('system:new-nickname', function (m) {
+      if (self.getContext('chatroom')) {
+        self._displayNewMsg(m.user, m.msg, m.color, m.time);
+      }
     });
-    this.socket.on('set-nickname', function (nickname) {
-      localStorage.setItem('bubbl-chat-username', nickname);
+    this.socket.on('system:room', function (room) {
+      if (self.getContext('chatroom')) {
+        self._showOldMessages(room.messages);
+      }
+    });
+    this.socket.on(
+      'system:user-joined-room',
+      function (user_id, room_id, count, m) {
+        if (self.getContext('chatroom')) {
+          console.log('user joined');
+          console.log(m);
+          self._displayNewMsg(m.user, m.msg, m.color, m.time);
+          document.getElementById('status').textContent = `${count} online`;
+        }
+      }
+    );
+    this.socket.on('system:joined-room', function (id, nickname, count, m) {
+      self.id = id;
+      console.log(nickname);
+      if (self.getContext('chatroom')) {
+        document.title = `Bubbl Chat | ${id} - ${nickname}`;
 
-      // document.getElementById("info").textContent =
-      //   "Nickname is taken, choose another, please";
+        self.nickname = nickname;
+        document.getElementById('login-wrapper').style.display = 'none';
+        document.getElementById('message-input').focus();
+        document.getElementById('status').textContent = `${count} online`;
+        self._displayNewMsg(m.user, m.msg, m.color, m.time);
+      }
     });
-    this.socket.on('old-messages', function (messages) {
-      self._showOldMessages(messages);
-    });
-    this.socket.on('login-success', function (nickname) {
-      document.title = `Bubbl Chat | ${nickname}`;
-      // save in localstorage:
-      localStorage.setItem('bubbl-chat-user', nickname);
-      self.currentUser = nickname;
-      document.getElementById('login-wrapper').style.display = 'none';
-      document.getElementById('message-input').focus();
-    });
-    this.socket.on('error', function (err) {
+    this.socket.on('system:error', function (err) {
       if (document.getElementById('login-wrapper').style.display == 'none') {
         document.getElementById('status').textContent = '!fail to connect :(';
       } else {
         document.getElementById('info').textContent = '!fail to connect :(';
       }
     });
-    this.socket.on('system', function (nickname, userCount, type, time) {
-      var msg = nickname + (type == 'login' ? ' joined' : ' left');
-      self._displayNewMsg('System ', msg, 'red', time);
-      document.getElementById('status').textContent = `${userCount} online`;
+    this.socket.on('system:disconnect', function (type, m) {
+      if (self.getContext('chatroom')) {
+        self._displayNewMsg(m.user, m.msg, m.color, m.time);
+      }
     });
-    this.socket.on('new-msg', function (user, msg, color, time) {
-      self._displayNewMsg(user, msg, color, time);
+    this.socket.on(
+      'system:chatroom',
+      function (nickname, userCount, type, time) {
+        if (self.getContext('chatroom')) {
+          var msg = nickname + (type == 'login' ? ' joined' : ' left');
+          self._displayNewMsg('System ', msg, 'red', time);
+          document.getElementById('status').textContent = `${userCount} online`;
+        }
+      }
+    );
+    this.socket.on('chatroom:new-msg', function (user, msg, color, time) {
+      if (self.getContext('chatroom')) {
+        self._displayNewMsg(user, msg, color, time);
+      }
     });
-    this.socket.on('new-img', function (user, img, color) {
-      self._displayImage(user, img, color);
+    this.socket.on('chatroom:new-img', function (user, img, color) {
+      if (self.getContext('chatroom')) {
+        self._displayImage(user, img, color);
+      }
     });
+  },
+  getContext: function (ctx) {
+    return this.context == ctx;
+  },
+  setContext: function (context) {
+    this.context = context;
+  },
+  setNickname: function (n) {
+    this.nickname = n;
+  },
+  setupChatroom: function () {
+    var self = this;
     document.getElementById('loginBtn').addEventListener(
       'click',
       function () {
         var nickname = document.getElementById('nickname-input').value;
         if (nickname.trim().length != 0) {
-          self.socket.emit('login', nickname);
+          self.socket.emit('user:login', nickname);
         } else {
           document.getElementById('nickname-input').focus();
         }
@@ -76,7 +113,7 @@ BChat.prototype = {
         if (e.key == 13) {
           var nickname = document.getElementById('nickname-input').value;
           if (nickname.trim().length != 0) {
-            self.socket.emit('login', nickname);
+            self.socket.emit('user:login', nickname);
           }
         }
       },
@@ -91,7 +128,13 @@ BChat.prototype = {
         messageInput.value = '';
         // messageInput.focus();
         if (msg.trim().length != 0) {
-          self.socket.emit('post-msg', msg, color, new Date().getTime());
+          self.socket.emit(
+            'user:new-msg',
+            msg,
+            color,
+            new Date().getTime(),
+            self.id
+          );
           self._displayNewMsg('me', msg, color, new Date().getTime());
           return;
         }
@@ -106,7 +149,13 @@ BChat.prototype = {
           color = document.getElementById('color-style').value;
         if (e.keyCode == 13 && msg.trim().length != 0) {
           messageInput.value = '';
-          self.socket.emit('post-msg', msg, color, new Date().getTime());
+          self.socket.emit(
+            'user:new-msg',
+            msg,
+            new Date().getTime(),
+            color,
+            self.id
+          );
           self._displayNewMsg('me', msg, color, new Date().getTime());
         }
       },
@@ -138,7 +187,7 @@ BChat.prototype = {
           }
           reader.onload = function (e) {
             this.value = '';
-            self.socket.emit('img', e.target.result, color);
+            self.socket.emit('user:img', e.target.result, color);
             self._displayImage('me', e.target.result, color);
           };
           reader.readAsDataURL(file);
@@ -196,7 +245,7 @@ BChat.prototype = {
     msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
     msgToDisplay.style.color = color || '#000';
     let m = `${user}<span class="timespan">(${date}):</span> ${msg}`;
-    if (user == 'me' || user == this.currentUser) {
+    if (user == 'me' || user == this.nickname) {
       user = 'me';
       msgToDisplay.setAttribute('class', 'ms-auto my-msg');
       m = `${msg} <span class="timespan">:(${date})</span>${user}`;
@@ -246,7 +295,7 @@ BChat.prototype = {
     document.getElementById('chats').innerHTML = '';
   },
   _showOldMessages: function (messages) {
-    this._clearScreen();
+    // this._clearScreen();
     messages.forEach((m) => {
       this._displayNewMsg(m.user, m.msg, m.color, m.time);
     });
