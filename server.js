@@ -1,3 +1,8 @@
+const User = require('./classes/User');
+const ChatRoom = require('./classes/ChatRoom');
+const ChatServer = require('./classes/ChatServer');
+const SocketServer = require('./classes/SocketServer');
+
 const express = require('express'),
   app = express(),
   server = require('http').Server(app),
@@ -5,27 +10,29 @@ const express = require('express'),
   eta = require('eta'),
   path = require('path'),
   lusca = require('lusca'),
-  errorHandler = require('error-handler'),
+  errorHandler = require('errorhandler'),
   Datastore = require('nedb-promises'),
-  { nanoid } = require('nanoid'),
-  users = [];
+  socketSession = require('express-socket.io-session'),
+  { nanoid } = require('nanoid');
 
-const cookieSession = require('cookie-session');
+const cookieSession = require('cookie-session')({
+  name: 'bubbl-auth-session',
+  keys: ['key'],
+  // Cookie Options
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 24 hours x 7
+});
 app.use(require('cookie-parser')());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cookieSession({
-    name: 'bubbl-auth-session',
-    keys: ['key'],
-    // Cookie Options
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 24 hours x 7
-  })
-);
+app.use(cookieSession);
 
-let messages = [];
+var users = []; // map from user id -> user object
+var rooms = []; // array of chat rooms (index is the)
+var connections = [];
+var chatHistory = {}; // map from roomId to array of messages
+var privateMessages = {}; // map from privateRoomId to array of messages
 
 let setCache = function (req, res, next) {
   // here you can define period in second, this one is 5 minutes
@@ -51,7 +58,7 @@ eta.configure({ views: path.resolve('views'), useWith: true });
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
 app.use(lusca.nosniff());
-app.use(lusca.csrf());
+// app.use(lusca.csrf());
 app.disable('x-powered-by');
 /** security */
 
@@ -64,31 +71,32 @@ const users_collection = Datastore.create({
   console.log('users collection loaded');
 });
 
+const rooms_collection = Datastore.create({
+  filename: path.resolve(
+    `${path.dirname(require.main.filename)}/db/rooms-datafile.db`
+  ),
+  autoload: false,
+}).on('load', (s) => {
+  console.log('rooms collection loaded');
+});
+
 const db = {
   users: users_collection,
+  rooms: rooms_collection,
 };
 
 app.use(setCache);
 app.use('/', express.static(__dirname + '/www'));
 
 app.use(function (req, res, next) {
-  // check if client sent cookie
-
-  // console.log(bubblChatUserCookie);
-  // console.log(bubblChatSessionUser);
-  // console.log(req.cookies);
-
-  // THIS IS AMAZING! IT WORKS! THANK YOU JESUS!
-  // I CAN SHARE SESSIONS BETWEEN APPS! WOW!
-  // single sign-on for the win!!!
-  // console.log(req.session);
-
-  if (req.session.isPopulated && req.session.bubbl_chat_signedin) {
+  if (req.session.bubbl_chat_user_id && req.session.bubbl_chat_signedin) {
     res.locals.bubbl_user = req.session.user;
     res.locals.user_id = req.session.bubbl_chat_user_id;
     res.locals.nickname = req.session.nickname;
     res.locals.loggedIn = true;
   }
+  console.log('nicknaaaa', req.session.nickname);
+  res.locals.env = process.env.NODE_ENV;
 
   res.locals.route = {
     query: req.query,
@@ -112,40 +120,81 @@ function isBubblAuth(req, res, next) {
   return res.redirect('/');
 }
 
+io.use(socketSession(cookieSession));
+
+const Chat = new ChatServer(db);
+
+Chat.loadData().then(() => {
+  new SocketServer(io, Chat);
+});
+
 app.get('/', (req, res) => {
   return res.render('index');
 });
 
-app.get('/lobby', isBubblAuth, (req, res) => {
-  return res.render('lobby');
+// TODO  add bADICE AUTH!
+app.get('/admin', isBubblAuth, (req, res) => {
+  return res.render('admin');
+});
+
+app.get('/delete/users', async (req, res) => {
+  await Chat.deleteAllUsers();
+  return res.send('Users deleted succesfully!');
+});
+
+app.get('/delete/rooms', async (req, res) => {
+  await Chat.deleteAllRooms();
+  return res.send('Rooms deleted succesfully!');
 });
 
 app.get('/login', async (req, res) => {
+  delete req.session.target;
+
   if (!req.query.user) {
     console.log('User not logged in correctly. Try again!');
     return res.redirect('/');
   }
 
   if (req.session.bubbl_chat_signedin && req.session.bubbl_chat_user_id) {
-    return res.redirect('/lobby');
+    return res.redirect('/app');
+  }
+
+  let c_u = req.session.bubbl_user;
+  let cu = await db.users.findOne({ username: c_u });
+
+  if (cu) {
+    // user already exists!
+    req.session.bubbl_chat_signedin = true;
+    req.session.bubbl_chat_user_id = cu.id;
+    req.session.nickname = cu.nickname;
+
+    Chat.addUser(cu);
+
+    return res.redirect('/app');
   }
 
   // maybe generate random id for user
 
-  const id = nanoid(5);
+  let id = nanoid(5);
+  let nickname = `user-${id}`;
+
   req.session.bubbl_chat_signedin = true;
   req.session.bubbl_chat_user_id = id;
-  req.session.nickname = `user-${id}`;
+  req.session.nickname = nickname;
+
+  let u = Chat.addUser({
+    id,
+    nickname,
+    bubbl_username: req.query.user || req.session.bubbl_user,
+  });
 
   try {
-    await db.users.insert({ username: req.query.user, id });
+    await db.users.insert(u);
   } catch (err) {
     console.error('Error saving user => ', err);
   }
 
-  delete req.session.target;
-
-  return res.redirect('/lobby');
+  return res.redirect('/app');
 });
 
 app.get('/logout', (req, res) => {
@@ -159,8 +208,8 @@ app.get('/logout', (req, res) => {
   return res.redirect('/');
 });
 
-app.get('/chat', (req, res) => {
-  return res.render('chat');
+app.get('/app', (req, res) => {
+  return res.render('app');
 });
 
 app.get('/eventor-158', (req, res) => {
@@ -172,53 +221,6 @@ app.get('/eventor-158', (req, res) => {
 });
 
 const port = process.env.PORT || 3100;
-io.on('connection', function (socket) {
-  // Ideally, we should check for cookies first before allowing connection ?
-  //new user login
-  socket.on('login', function (nickname) {
-    if (users.indexOf(nickname) > -1) {
-      socket.emit('nickname-exists');
-    } else {
-      //socket.userIndex = users.length;
-      socket.nickname = nickname;
-      users.push(nickname);
-      socket.emit('login-success', nickname);
-      if (messages.length > 0) {
-        socket.emit('old-messages', messages);
-      }
-      io.sockets.emit(
-        'system',
-        nickname,
-        users.length,
-        'login',
-        new Date().getTime()
-      );
-    }
-  });
-  //user leaves
-  socket.on('disconnect', function () {
-    if (socket.nickname != null) {
-      //users.splice(socket.userIndex, 1);
-      users.splice(users.indexOf(socket.nickname), 1);
-      socket.broadcast.emit(
-        'system',
-        socket.nickname,
-        users.length,
-        'logout',
-        new Date().getTime()
-      );
-    }
-  });
-  //new message get
-  socket.on('post-msg', function (msg, color, time) {
-    socket.broadcast.emit('new-msg', socket.nickname, msg, color, time);
-    messages.push({ user: socket.nickname, msg, color, time });
-  });
-  //new image get
-  socket.on('img', function (imgData, color) {
-    socket.broadcast.emit('new-img', socket.nickname, imgData, color);
-  });
-});
 
 if (process.env.NODE_ENV.trim() === 'dev') {
   // only use in development
