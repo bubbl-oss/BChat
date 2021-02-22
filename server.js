@@ -159,10 +159,10 @@ app.get('/login', async (req, res) => {
     return res.redirect('/app');
   }
 
-  let c_u = req.session.bubbl_user;
-  let cu = await db.users.findOne({ username: c_u });
+  let id = req.session.bubbl_chat_user_id;
+  let current_user = await db.users.findOne({ id });
 
-  if (cu) {
+  if (current_user) {
     // user already exists!
     req.session.bubbl_chat_signedin = true;
     req.session.bubbl_chat_user_id = cu.id;
@@ -175,15 +175,16 @@ app.get('/login', async (req, res) => {
 
   // maybe generate random id for user
 
-  let id = nanoid(5);
-  let nickname = `user-${id}`;
+  let _user_id = nanoid(5);
+  let nickname = `user-${_user_id}`;
 
   req.session.bubbl_chat_signedin = true;
-  req.session.bubbl_chat_user_id = id;
+  req.session.bubbl_chat_user_id = _user_id;
   req.session.nickname = nickname;
 
+  // This is a new user o
   let u = Chat.addUser({
-    id,
+    id: _user_id,
     nickname,
     bubbl_username: req.query.user || req.session.bubbl_user,
   });
@@ -210,6 +211,23 @@ app.get('/logout', (req, res) => {
 
 app.get('/app', (req, res) => {
   return res.render('app');
+});
+
+app.patch('/change-nickname', (req, res) => {
+  if (req.body.new_nickname) {
+    Chat.changeUserNickname(
+      req.session.bubbl_chat_user_id,
+      req.body.new_nickname
+    );
+
+    req.session.nickname = req.body.new_nickname;
+
+    return res
+      .status(200)
+      .json({ success: true, nickname: req.body.new_nickname });
+  }
+
+  return res.status(404).send('Missing username!');
 });
 
 app.get('/eventor-158', (req, res) => {

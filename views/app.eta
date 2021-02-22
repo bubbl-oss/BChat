@@ -79,6 +79,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set,Math.trunc"></script>
+    <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
+    <script type="text/javascript">
+      window.request = superagent;
+    </script>
     <script src="scripts/autolink.js"></script>
     <script src="scripts/bchat.js"></script>
     <script>

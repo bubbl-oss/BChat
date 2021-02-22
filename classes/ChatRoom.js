@@ -45,13 +45,11 @@ ChatRoom.prototype = {
     this.name = name;
   },
 
-  newMessage: function ({ user, msg, time, color }) {
-    let m = new Message(user, msg, this.id, time, color);
+  newMessage: function ({ user, user_id, msg, time, color }) {
+    let m = new Message(user, user_id, msg, this.id, time, color);
 
     // TODO: find out if the loop is slow!
     this.messages.push(m);
-
-    console.log(m);
   },
 
   setMessages: function (messages) {

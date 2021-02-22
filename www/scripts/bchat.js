@@ -3,6 +3,7 @@ var BChat = function () {
   this.nickname = null;
   this.context = 'lobby';
   this.id = null;
+  this.user_id = null;
 };
 BChat.prototype = {
   init: function () {
@@ -38,19 +39,23 @@ BChat.prototype = {
         }
       }
     );
-    this.socket.on('system:joined-room', function (id, nickname, count, m) {
-      self.id = id;
-      console.log(nickname);
-      if (self.getContext('chatroom')) {
-        document.title = `Bubbl Chat | ${id} - ${nickname}`;
+    this.socket.on(
+      'system:joined-room',
+      function (id, nickname, user_id, count, m) {
+        self.id = id;
+        self.user_id = user_id;
+        console.log(nickname);
+        if (self.getContext('chatroom')) {
+          document.title = `Bubbl Chat | ${id} - ${nickname}`;
 
-        self.nickname = nickname;
-        document.getElementById('login-wrapper').style.display = 'none';
-        document.getElementById('message-input').focus();
-        document.getElementById('status').textContent = `${count} online`;
-        self._displayNewMsg(m.user, m.msg, m.color, m.time);
+          self.nickname = nickname;
+          document.getElementById('login-wrapper').style.display = 'none';
+          document.getElementById('message-input').focus();
+          document.getElementById('status').textContent = `${count} online`;
+          self._displayNewMsg(m.user, m.msg, m.color, m.time);
+        }
       }
-    });
+    );
     this.socket.on('system:error', function (err) {
       if (document.getElementById('login-wrapper').style.display == 'none') {
         document.getElementById('status').textContent = '!fail to connect :(';
@@ -73,11 +78,14 @@ BChat.prototype = {
         }
       }
     );
-    this.socket.on('chatroom:new-msg', function (user, msg, color, time) {
-      if (self.getContext('chatroom')) {
-        self._displayNewMsg(user, msg, color, time);
+    this.socket.on(
+      'chatroom:new-msg',
+      function (user, msg, color, time, user_id) {
+        if (self.getContext('chatroom')) {
+          self._displayNewMsg(user, msg, color, time, user_id);
+        }
       }
-    });
+    );
     this.socket.on('chatroom:new-img', function (user, img, color) {
       if (self.getContext('chatroom')) {
         self._displayImage(user, img, color);
@@ -154,7 +162,8 @@ BChat.prototype = {
             msg,
             new Date().getTime(),
             color,
-            self.id
+            self.id,
+            self.user_id
           );
           self._displayNewMsg('me', msg, color, new Date().getTime());
         }
@@ -236,7 +245,7 @@ BChat.prototype = {
     }
     emojiContainer.appendChild(docFragment);
   },
-  _displayNewMsg: function (user, msg, color, time) {
+  _displayNewMsg: function (user, msg, color, time, user_id) {
     var container = document.getElementById('chats'),
       msgToDisplay = document.createElement('p'),
       date = new Date(time).toTimeString().substr(0, 8),
@@ -245,7 +254,7 @@ BChat.prototype = {
     msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
     msgToDisplay.style.color = color || '#000';
     let m = `${user}<span class="timespan">(${date}):</span> ${msg}`;
-    if (user == 'me' || user == this.nickname) {
+    if (user == 'me' || user_id == this.user_id) {
       user = 'me';
       msgToDisplay.setAttribute('class', 'ms-auto my-msg');
       m = `${msg} <span class="timespan">:(${date})</span>${user}`;
@@ -297,7 +306,7 @@ BChat.prototype = {
   _showOldMessages: function (messages) {
     // this._clearScreen();
     messages.forEach((m) => {
-      this._displayNewMsg(m.user, m.msg, m.color, m.time);
+      this._displayNewMsg(m.user, m.msg, m.color, m.time, m.user_id);
     });
   },
 };

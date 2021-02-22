@@ -20,9 +20,34 @@ if (document.getElementById('vue-app')) {
         window.Chat.socket.emit('user:delete-room', id);
       },
       changeNickname: function () {
-        window.Chat.socket.emit('user:change-nickname', this.nickname);
-        window.Chat.nickname = this.nickname;
-        this.nickname = '';
+        self = this;
+
+        window.request
+          .patch('/change-nickname')
+          .withCredentials()
+          .send({ new_nickname: this.nickname }) // sends a JSON post body
+          .set('X-API-Key', 'foobar')
+          .set('accept', 'json')
+          .end(function (err, res) {
+            // Calling the end function will send the request
+
+            if (!res.ok) {
+              console.log(res);
+              return;
+            }
+
+            if (res.body.success || res.ok) {
+              // move to token step...
+              console.log(res.text);
+              window.Chat.socket.emit(
+                'user:change-nickname',
+                res.body.nickname
+              );
+              window.Chat.nickname = res.body.nickname;
+              this.nickname = '';
+              return;
+            }
+          });
       },
     },
     computed: {

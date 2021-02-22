@@ -80,12 +80,19 @@ function SocketServer(io, chat) {
 
       console.log('User nickname!', socket.nickname);
 
-      socket.emit('system:joined-room', id, socket.nickname, user_count, {
-        user: 'System ',
-        msg: `welcome to the room ${socket.nickname}`,
-        color: 'green',
-        time: new Date(),
-      }); // for user
+      socket.emit(
+        'system:joined-room',
+        id,
+        socket.nickname,
+        socket.user_id,
+        user_count,
+        {
+          user: 'System ',
+          msg: `welcome to the room ${socket.nickname}`,
+          color: 'green',
+          time: new Date(),
+        }
+      ); // for user
       socket.emit('system:room', room); // for user
       socket
         .to(id)
@@ -97,22 +104,24 @@ function SocketServer(io, chat) {
         }); // for other clients
     });
     //new message get
-    socket.on('user:new-msg', function (msg, time, color, chatroom_id) {
-      //   Get the ChatRoom and add this message...
+    socket.on(
+      'user:new-msg',
+      function (msg, time, color, chatroom_id, user_id) {
+        //   Get the ChatRoom and add this message...
 
-      chat.newMessage(chatroom_id, {
-        user: socket.nickname,
-        msg,
-        time,
-        color,
-      });
+        chat.newMessage(chatroom_id, {
+          user: socket.nickname,
+          user_id,
+          msg,
+          time,
+          color,
+        });
 
-      console.log('Chat room => ', chatroom_id);
-
-      socket
-        .to(chatroom_id || socket.room)
-        .emit('chatroom:new-msg', socket.nickname, msg, color, time);
-    });
+        socket
+          .to(chatroom_id || socket.room)
+          .emit('chatroom:new-msg', socket.nickname, msg, color, time, user_id);
+      }
+    );
     //new image get
     socket.on('user:img', function (imgData, color, room_id) {
       socket
@@ -124,11 +133,9 @@ function SocketServer(io, chat) {
       let old = socket.nickname;
       let _new = nickname;
 
-      chat.changeUserNickname(socket.user_id, nickname);
+      // chat.changeUserNickname(socket.user_id, nickname);
 
       socket.nickname = _new;
-      socket.handshake.session.nickname = _new;
-      console.log(socket.handshake.session.nickname, socket.nickname);
       socket.emit('system:change-nickname', nickname);
       io.to(socket.room).emit('system:new-nickname', {
         user: 'System ',

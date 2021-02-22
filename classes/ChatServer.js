@@ -78,7 +78,6 @@ ChatServer.prototype = {
   },
   addRoom: async function ({ name, founder }) {
     let r = this.rooms.findIndex((r) => r.name == name);
-    console.log(name, founder);
 
     if (r < 0) {
       let room = new ChatRoom(name, founder);
@@ -114,7 +113,6 @@ ChatServer.prototype = {
   },
   setUsers: function (users) {
     if (Array.isArray(users)) {
-      console.log('Setting users =>');
       this.users = users;
     }
   },
