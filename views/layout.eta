@@ -11,7 +11,7 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles/main.css?v=0.5.0" />
+    <link rel="stylesheet" href="styles/main.css?v=0.6.0" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
@@ -68,13 +68,13 @@
 
     <main><%~ body %></main>
 
-    <script src="http://localhost:5000/js/auth.js"></script>
+    <script src="https://auther.mybubbl.me/js/auth.js?v=0.2.0"></script>
     <!-- <div>
         <script src="https://auther.mybubbl.me/js/auth.js?v=0.1.0"></script>
     </div> -->
     <script>
       var login = function () {
-        var Auth = new BubblAuth('http://localhost:5000');
+        var Auth = new BubblAuth('https://auther.mybubbl.me');
 
         Auth.login()
           .then((data) => {
