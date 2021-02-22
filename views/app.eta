@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bubbl Chat — Anonymous Chat for AUN</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles/main.css?v=0.5.0" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- META TAGS -->
+    <meta name="title" content="Bubbl Chat — Anonymous Chat for AUN" />
+    <meta
+      name="description"
+      content="Say all the rubbish you want, without accountability! No Moderation, Real Time and No Saved chats!"
+    />
+    <!-- META TAGS -->
+  </head>
+  <body>
+    <div id="vue-app">
+      <header class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="container-fluid">
+            <a class="navbar-brand small" href="/"
+              ><img src="/img/logo.png" alt="bubbl chat icon" /> Bubbl Chat
+            </a>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarText"
+              aria-controls="navbarText"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item" style="display: inline">
+                  <router-link
+                    class="nav-link active btn btn-sm"
+                    aria-current="page"
+                    active-class="is-active"
+                    tag="li"
+                    :to="{name: 'Lobby'}"
+                    exact
+                    >Lobby</router-link
+                  >
+                </li>
+              </ul>
+              <span class="navbar-text">
+                <button
+                  class="btn btn-sm btn-info"
+                  id="copy-link-btn"
+                  :data-clipboard-text="`https://chat.mybubbl.me/app#${$route.path}`"
+                >
+                  <!-- Trigger -->
+                  Copy Link
+                </button>
+              </span>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <router-view></router-view>
+    </div>
+
+    <!--- VUE TEMPLATES! THANK YOU JESUS! --->
+    <%~ E.includeFile("chatroom.vue") %> <%~ E.includeFile("lobby.vue") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=Array.from,Promise,Symbol,Object.setPrototypeOf,Object.getOwnPropertySymbols,Set,Math.trunc"></script>
+    <script src="https://cdn.jsdelivr.net/npm/superagent"></script>
+    <script type="text/javascript">
+      window.request = superagent;
+    </script>
+    <script src="scripts/autolink.js"></script>
+    <script src="scripts/bchat.js"></script>
+    <script>
+      window.onload = function () {
+        new ClipboardJS('#copy-link-btn');
+      };
+      window.startChat = function () {
+        window.Chat = new BChat();
+      };
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js"
+      integrity="sha384-nsg8ua9HAw1y0W1btsyWgBklPnCUAFLuTMS2G72MMONqmOymq585AcH49TLBQObG"
+      crossorigin="anonymous"
+    ></script>
+    <% if(env=='production') { %>
+    <!-- Production mode -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <% } else { %>
+    <!-- Dev mode -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <% } %>
+    <script src="https://unpkg.com/vuex@3.0.1/dist/vuex.min.js"></script>
+    <!-- Vue Router, thank you Jesus! https://unpkg.com/vuex -->
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+    <script src="/js/lobby.vue.js"></script>
+    <script src="/js/chatroom.vue.js"></script>
+    <script src="/js/app.vue.js"></script>
+  </body>
+</html>

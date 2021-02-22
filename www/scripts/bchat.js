@@ -1,132 +1,203 @@
 var BChat = function () {
   this.socket = null;
+  this.nickname = null;
+  this.context = 'lobby';
+  this.id = null;
+  this.user_id = null;
 };
 BChat.prototype = {
   init: function () {
-    var that = this;
+    var self = this;
     this.socket = io.connect();
-    this.socket.on("connect", function () {
-      let nickname = localStorage.getItem("bubbl-chat-user");
+    this.socket.on('connect', function () {
+      self.socket.emit('user:login');
+    });
+    this.socket.on('system:nickname-exists', function () {
+      if (self.getContext('chatroom')) {
+        document.getElementById('info').textContent =
+          'Nickname is taken, choose another, please';
+      }
+    });
+    this.socket.on('system:new-nickname', function (m) {
+      if (self.getContext('chatroom')) {
+        self._displayNewMsg(m.user, m.msg, m.color, m.time);
+      }
+    });
+    this.socket.on('system:room', function (room) {
+      if (self.getContext('chatroom')) {
+        self._showOldMessages(room.messages);
+      }
+    });
+    this.socket.on(
+      'system:user-joined-room',
+      function (user_id, room_id, count, m) {
+        if (self.getContext('chatroom')) {
+          console.log('user joined');
+          console.log(m);
+          self._displayNewMsg(m.user, m.msg, m.color, m.time);
+          document.getElementById('status').textContent = `${count} online`;
+        }
+      }
+    );
+    this.socket.on(
+      'system:joined-room',
+      function (id, nickname, user_id, count, m) {
+        self.id = id;
+        self.user_id = user_id;
+        console.log(nickname);
+        if (self.getContext('chatroom')) {
+          document.title = `Bubbl Chat | ${id} - ${nickname}`;
 
-      if (nickname) {
-        // if user exists, umm still send login request though.
-        that.socket.emit("login", nickname);
+          self.nickname = nickname;
+          document.getElementById('login-wrapper').style.display = 'none';
+          document.getElementById('message-input').focus();
+          document.getElementById('status').textContent = `${count} online`;
+          self._displayNewMsg(m.user, m.msg, m.color, m.time);
+        }
+      }
+    );
+    this.socket.on('system:error', function (err) {
+      if (document.getElementById('login-wrapper').style.display == 'none') {
+        document.getElementById('status').textContent = '!fail to connect :(';
       } else {
-        document.getElementById("info").textContent = "Enter a nickname";
-        document.getElementById("nickWrapper").style.display = "block";
-        document.getElementById("nicknameInput").focus();
+        document.getElementById('info').textContent = '!fail to connect :(';
       }
     });
-    this.socket.on("nickExisted", function () {
-      document.getElementById("info").textContent =
-        "Nickname is taken, choose another, please";
-    });
-    this.socket.on("loginSuccess", function (nickname) {
-      document.title = `Bubbl Chat | ${nickname}`;
-      // save in localstorage:
-      localStorage.setItem("bubbl-chat-user", nickname);
-      document.getElementById("loginWrapper").style.display = "none";
-      document.getElementById("messageInput").focus();
-    });
-    this.socket.on("error", function (err) {
-      if (document.getElementById("loginWrapper").style.display == "none") {
-        document.getElementById("status").textContent = "!fail to connect :(";
-      } else {
-        document.getElementById("info").textContent = "!fail to connect :(";
+    this.socket.on('system:disconnect', function (type, m) {
+      if (self.getContext('chatroom')) {
+        self._displayNewMsg(m.user, m.msg, m.color, m.time);
       }
     });
-    this.socket.on("system", function (nickName, userCount, type) {
-      var msg = nickName + (type == "login" ? " joined" : " left");
-      that._displayNewMsg("System ", msg, "red");
-      document.getElementById("status").textContent = `${userCount} online`;
+    this.socket.on(
+      'system:chatroom',
+      function (nickname, userCount, type, time) {
+        if (self.getContext('chatroom')) {
+          var msg = nickname + (type == 'login' ? ' joined' : ' left');
+          self._displayNewMsg('System ', msg, 'red', time);
+          document.getElementById('status').textContent = `${userCount} online`;
+        }
+      }
+    );
+    this.socket.on(
+      'chatroom:new-msg',
+      function (user, msg, color, time, user_id) {
+        if (self.getContext('chatroom')) {
+          self._displayNewMsg(user, msg, color, time, user_id);
+        }
+      }
+    );
+    this.socket.on('chatroom:new-img', function (user, img, color) {
+      if (self.getContext('chatroom')) {
+        self._displayImage(user, img, color);
+      }
     });
-    this.socket.on("newMsg", function (user, msg, color) {
-      that._displayNewMsg(user, msg, color);
-    });
-    this.socket.on("newImg", function (user, img, color) {
-      that._displayImage(user, img, color);
-    });
-    document.getElementById("loginBtn").addEventListener(
-      "click",
+  },
+  getContext: function (ctx) {
+    return this.context == ctx;
+  },
+  setContext: function (context) {
+    this.context = context;
+  },
+  setNickname: function (n) {
+    this.nickname = n;
+  },
+  setupChatroom: function () {
+    var self = this;
+    document.getElementById('loginBtn').addEventListener(
+      'click',
       function () {
-        var nickName = document.getElementById("nicknameInput").value;
-        if (nickName.trim().length != 0) {
-          that.socket.emit("login", nickName);
+        var nickname = document.getElementById('nickname-input').value;
+        if (nickname.trim().length != 0) {
+          self.socket.emit('user:login', nickname);
         } else {
-          document.getElementById("nicknameInput").focus();
+          document.getElementById('nickname-input').focus();
         }
       },
       false
     );
-    document.getElementById("nicknameInput").addEventListener(
-      "keyup",
+    document.getElementById('nickname-input').addEventListener(
+      'keyup',
       function (e) {
         if (e.key == 13) {
-          var nickName = document.getElementById("nicknameInput").value;
-          if (nickName.trim().length != 0) {
-            that.socket.emit("login", nickName);
+          var nickname = document.getElementById('nickname-input').value;
+          if (nickname.trim().length != 0) {
+            self.socket.emit('user:login', nickname);
           }
         }
       },
       false
     );
-    document.getElementById("sendBtn").addEventListener(
-      "click",
+    document.getElementById('sendBtn').addEventListener(
+      'click',
       function () {
-        var messageInput = document.getElementById("messageInput"),
+        var messageInput = document.getElementById('message-input'),
           msg = messageInput.value,
-          color = document.getElementById("colorStyle").value;
-        messageInput.value = "";
+          color = document.getElementById('color-style').value;
+        messageInput.value = '';
         // messageInput.focus();
         if (msg.trim().length != 0) {
-          that.socket.emit("postMsg", msg, color);
-          that._displayNewMsg("me", msg, color);
+          self.socket.emit(
+            'user:new-msg',
+            msg,
+            color,
+            new Date().getTime(),
+            self.id
+          );
+          self._displayNewMsg('me', msg, color, new Date().getTime());
           return;
         }
       },
       false
     );
-    document.getElementById("messageInput").addEventListener(
-      "keyup",
+    document.getElementById('message-input').addEventListener(
+      'keyup',
       function (e) {
-        var messageInput = document.getElementById("messageInput"),
+        var messageInput = document.getElementById('message-input'),
           msg = messageInput.value,
-          color = document.getElementById("colorStyle").value;
+          color = document.getElementById('color-style').value;
         if (e.keyCode == 13 && msg.trim().length != 0) {
-          messageInput.value = "";
-          that.socket.emit("postMsg", msg, color);
-          that._displayNewMsg("me", msg, color);
+          messageInput.value = '';
+          self.socket.emit(
+            'user:new-msg',
+            msg,
+            new Date().getTime(),
+            color,
+            self.id,
+            self.user_id
+          );
+          self._displayNewMsg('me', msg, color, new Date().getTime());
         }
       },
       false
     );
-    document.getElementById("clearBtn").addEventListener(
-      "click",
+    document.getElementById('clearBtn').addEventListener(
+      'click',
       function () {
-        document.getElementById("historyMsg").innerHTML = "";
+        self._clearScreen();
       },
       false
     );
-    document.getElementById("sendImage").addEventListener(
-      "change",
+    document.getElementById('send-image').addEventListener(
+      'change',
       function () {
         if (this.files.length != 0) {
           var file = this.files[0],
             reader = new FileReader(),
-            color = document.getElementById("colorStyle").value;
+            color = document.getElementById('color-style').value;
           if (!reader) {
-            that._displayNewMsg(
-              "System",
+            self._displayNewMsg(
+              'System',
               "Your browser doesn't support fileReader",
-              "red"
+              'red',
+              new Date().getTime()
             );
-            this.value = "";
+            this.value = '';
             return;
           }
           reader.onload = function (e) {
-            this.value = "";
-            that.socket.emit("img", e.target.result, color);
-            that._displayImage("me", e.target.result, color);
+            this.value = '';
+            self.socket.emit('user:img', e.target.result, color);
+            self._displayImage('me', e.target.result, color);
           };
           reader.readAsDataURL(file);
         }
@@ -134,72 +205,74 @@ BChat.prototype = {
       false
     );
     this._initialEmoji();
-    document.getElementById("emoji").addEventListener(
-      "click",
+    document.getElementById('emoji').addEventListener(
+      'click',
       function (e) {
-        var emojiwrapper = document.getElementById("emojiWrapper");
-        emojiwrapper.style.display = "block";
+        var emojiWrapper = document.getElementById('emoji-wrapper');
+        emojiWrapper.style.display = 'block';
         e.stopPropagation();
       },
       false
     );
-    document.body.addEventListener("click", function (e) {
-      var emojiwrapper = document.getElementById("emojiWrapper");
-      if (e.target != emojiwrapper) {
-        emojiwrapper.style.display = "none";
+    document.body.addEventListener('click', function (e) {
+      var emojiWrapper = document.getElementById('emoji-wrapper');
+      if (e.target != emojiWrapper) {
+        emojiWrapper.style.display = 'none';
       }
     });
-    document.getElementById("emojiWrapper").addEventListener(
-      "click",
+    document.getElementById('emoji-wrapper').addEventListener(
+      'click',
       function (e) {
         var target = e.target;
-        if (target.nodeName.toLowerCase() == "img") {
-          var messageInput = document.getElementById("messageInput");
+        if (target.nodeName.toLowerCase() == 'img') {
+          var messageInput = document.getElementById('message-input');
           messageInput.focus();
           messageInput.value =
-            messageInput.value + "[emoji:" + target.title + "]";
+            messageInput.value + '[emoji:' + target.title + ']';
         }
       },
       false
     );
   },
   _initialEmoji: function () {
-    var emojiContainer = document.getElementById("emojiWrapper"),
+    var emojiContainer = document.getElementById('emoji-wrapper'),
       docFragment = document.createDocumentFragment();
     for (var i = 69; i > 0; i--) {
-      var emojiItem = document.createElement("img");
-      emojiItem.src = "../content/emoji/" + i + ".gif";
+      var emojiItem = document.createElement('img');
+      emojiItem.src = '../content/emoji/' + i + '.gif';
       emojiItem.title = i;
       docFragment.appendChild(emojiItem);
     }
     emojiContainer.appendChild(docFragment);
   },
-  _displayNewMsg: function (user, msg, color) {
-    var container = document.getElementById("historyMsg"),
-      msgToDisplay = document.createElement("p"),
-      date = new Date().toTimeString().substr(0, 8),
+  _displayNewMsg: function (user, msg, color, time, user_id) {
+    var container = document.getElementById('chats'),
+      msgToDisplay = document.createElement('p'),
+      date = new Date(time).toTimeString().substr(0, 8),
       //determine whether the msg contains emoji
       msg = this._showEmoji(msg);
-    msg.autoLink({ target: "_blank", rel: "noopener noreferrer" });
-    msgToDisplay.style.color = color || "#000";
-    if (user == "me") {
-      msgToDisplay.setAttribute("class", "ms-auto my-msg");
+    msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
+    msgToDisplay.style.color = color || '#000';
+    let m = `${user}<span class="timespan">(${date}):</span> ${msg}`;
+    if (user == 'me' || user_id == this.user_id) {
+      user = 'me';
+      msgToDisplay.setAttribute('class', 'ms-auto my-msg');
+      m = `${msg} <span class="timespan">:(${date})</span>${user}`;
     }
-    msgToDisplay.innerHTML =
-      user + '<span class="timespan">(' + date + "): </span>" + msg;
+    msgToDisplay.innerHTML = m;
     container.appendChild(msgToDisplay);
     container.scrollTop = container.scrollHeight;
   },
   _displayImage: function (user, imgData, color) {
-    var container = document.getElementById("historyMsg"),
-      msgToDisplay = document.createElement("p"),
+    var container = document.getElementById('chats'),
+      msgToDisplay = document.createElement('p'),
       date = new Date().toTimeString().substr(0, 8);
-    msgToDisplay.style.color = color || "#000";
+    msgToDisplay.style.color = color || '#000';
     msgToDisplay.innerHTML =
       user +
       '<span class="timespan">(' +
       date +
-      "): </span> <br/>" +
+      '): </span> <br/>' +
       '<a href="' +
       imgData +
       '" target="_blank"><img src="' +
@@ -213,11 +286,11 @@ BChat.prototype = {
       result = msg,
       reg = /\[emoji:\d+\]/g,
       emojiIndex,
-      totalEmojiNum = document.getElementById("emojiWrapper").children.length;
+      totalEmojiNum = document.getElementById('emoji-wrapper').children.length;
     while ((match = reg.exec(msg))) {
       emojiIndex = match[0].slice(7, -1);
       if (emojiIndex > totalEmojiNum) {
-        result = result.replace(match[0], "[X]");
+        result = result.replace(match[0], '[X]');
       } else {
         result = result.replace(
           match[0],
@@ -226,5 +299,14 @@ BChat.prototype = {
       }
     }
     return result;
+  },
+  _clearScreen: function () {
+    document.getElementById('chats').innerHTML = '';
+  },
+  _showOldMessages: function (messages) {
+    // this._clearScreen();
+    messages.forEach((m) => {
+      this._displayNewMsg(m.user, m.msg, m.color, m.time, m.user_id);
+    });
   },
 };

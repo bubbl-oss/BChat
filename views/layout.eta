@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bubbl Chat — Anonymous Chat for AUN</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles/main.css?v=0.6.0" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- META TAGS -->
+    <meta name="title" content="Bubbl Chat — Anonymous Chat for AUN" />
+    <meta
+      name="description"
+      content="Say all the rubbish you want, without accountability! No Moderation, Real Time and No Saved chats!"
+    />
+  </head>
+
+  <body>
+    <header
+      class="container text-center"
+      style="font-size: smaller; text-align: center"
+    ></header>
+    <header class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand small" href="/"
+            ><img src="/img/logo.png" alt="bubbl chat icon" /> Bubbl Chat
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarText"
+            aria-controls="navbarText"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item" style="display: inline">idk</li>
+            </ul>
+            <span class="navbar-text">
+              <strong>
+                <%= typeof user_id != 'undefined' ? user_id : '' %>
+              </strong>
+
+              <% if (typeof loggedIn != 'undefined') { %>
+              <button class="btn btn-sm btn-outline-dark" onclick="logout()">
+                <!-- Trigger -->
+                Logout
+              </button>
+              <% } %>
+            </span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main><%~ body %></main>
+
+    <script src="https://auther.mybubbl.me/js/auth.js?v=0.2.0"></script>
+    <!-- <div>
+        <script src="https://auther.mybubbl.me/js/auth.js?v=0.1.0"></script>
+    </div> -->
+    <script>
+      var login = function () {
+        var Auth = new BubblAuth('https://auther.mybubbl.me');
+
+        Auth.login()
+          .then((data) => {
+            console.log('Authenticated successfully! => ' + data);
+            // after successful login, tell the server.
+            //
+            window.location = `/login?user=${data}&token=correct2021`;
+          })
+          .catch((err) => {
+            console.error('Error logging in! Try again?', err);
+            document.getElementById('error-notif').style.display = 'block';
+          });
+      };
+
+      var logout = function () {
+        var Auth = new BubblAuth('http://localhost:5000');
+
+        Auth.logout()
+          .then((data) => {
+            console.log('Logged out successfully! => ' + data);
+            // after successful logout, tell the server.
+            //
+            window.location = `/logout?user=${data}&token=correct2021`;
+          })
+          .catch((err) => {
+            console.error('Error logging in! Try again?', err);
+            document.getElementById('error-notif').style.display = 'block';
+          });
+      };
+    </script>
+  </body>
+</html>
