@@ -46,7 +46,7 @@
                 @click="changeNickname()"
                 :disabled="!nickname"
               >
-                Change Nickname
+                Change
               </button>
             </div>
           </div>
@@ -69,8 +69,21 @@
           </div>
         </li>
       </ul>
+
+      <p class="text-center alert alert-dark" v-else>
+        No chat rooms yet, be the first to make one!
+      </p>
     </div>
 
-    <footer class="mt-5">bchat</footer>
+    <footer class="mt-5">
+      Bchat
+
+      <a href="https://github.com/bubbl-oss/bchat"
+        >Contribute to BChat on Github 🛠️</a
+      ><br />
+      <a href="https://wa.me/2348140760114?text=hi%20👋🏿" target="_blank"
+        >Give us Feedback 👋🏿</a
+      >
+    </footer>
   </div>
 </template>

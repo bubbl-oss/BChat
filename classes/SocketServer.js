@@ -1,13 +1,15 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable func-names */
 function SocketServer(io, chat) {
   this.chat = chat;
 
   io.on('connection', function (socket) {
     // Ideally, we should check for cookies first before allowing connection ?
-    //new user login
+    // new user login
     console.log('Connected!');
     socket.on('user:login', async function () {
       const authenticated = socket.handshake.session.bubbl_chat_signedin;
-      const nickname = socket.handshake.session.nickname;
+      const nickname = socket.handshake.session.bubbl_chat_nickname;
       const user_id = socket.handshake.session.bubbl_chat_user_id;
 
       if (authenticated) {
@@ -17,7 +19,7 @@ function SocketServer(io, chat) {
 
         socket.emit('system:rooms', chat.getRooms());
 
-        let u = await chat.getUser(user_id);
+        const u = await chat.getUser(user_id);
 
         socket.emit('system:user', u);
 
@@ -26,7 +28,7 @@ function SocketServer(io, chat) {
           nickname,
           chat.getUserCount(),
           'login',
-          new Date().getTime()
+          new Date()
         );
       } else {
         socket.emit('login-error');
@@ -34,7 +36,7 @@ function SocketServer(io, chat) {
     });
 
     socket.on('user:new-room', async function (name) {
-      let r = await chat.addRoom({
+      const r = await chat.addRoom({
         name,
         founder: socket.user_id,
       });
@@ -103,18 +105,18 @@ function SocketServer(io, chat) {
           time: new Date(),
         }); // for other clients
     });
-    //new message get
+    // new message get
     socket.on(
       'user:new-msg',
-      function (msg, time, color, chatroom_id, user_id) {
+      function (msg, color, time, chatroom_id, user_id) {
         //   Get the ChatRoom and add this message...
 
         chat.newMessage(chatroom_id, {
           user: socket.nickname,
           user_id,
           msg,
-          time,
           color,
+          time,
         });
 
         socket
@@ -122,7 +124,7 @@ function SocketServer(io, chat) {
           .emit('chatroom:new-msg', socket.nickname, msg, color, time, user_id);
       }
     );
-    //new image get
+    // new image get
     socket.on('user:img', function (imgData, color, room_id) {
       socket
         .to(room_id)
@@ -130,8 +132,8 @@ function SocketServer(io, chat) {
     });
 
     socket.on('user:change-nickname', function (nickname) {
-      let old = socket.nickname;
-      let _new = nickname;
+      const old = socket.nickname;
+      const _new = nickname;
 
       // chat.changeUserNickname(socket.user_id, nickname);
 
@@ -145,7 +147,7 @@ function SocketServer(io, chat) {
       });
     });
 
-    //user leaves
+    // user leaves
     socket.on('disconnect', function () {
       if (socket.nickname != null) {
         console.log('disconnecting user...');

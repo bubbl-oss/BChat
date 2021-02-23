@@ -11,7 +11,7 @@
       integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="styles/main.css?v=0.6.0" />
+    <link rel="stylesheet" href="styles/main.css?v=0.7.0" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
@@ -21,6 +21,17 @@
       name="description"
       content="Say all the rubbish you want, without accountability! No Moderation, Real Time and No Saved chats!"
     />
+
+    <style>
+      footer {
+        position: relative;
+        text-align: center;
+        left: 0;
+        bottom: 0;
+        height: 50px;
+        width: 100%;
+      }
+    </style>
   </head>
 
   <body>
@@ -68,10 +79,18 @@
 
     <main><%~ body %></main>
 
-    <script src="https://auther.mybubbl.me/js/auth.js?v=0.2.0"></script>
-    <!-- <div>
-        <script src="https://auther.mybubbl.me/js/auth.js?v=0.1.0"></script>
-    </div> -->
+    <footer class="mt-5">
+      Bchat
+
+      <a href="https://github.com/bubbl-oss/bchat"
+        >Contribute to BChat on Github 🛠️</a
+      ><br />
+      <a href="https://wa.me/2348140760114?text=hi%20👋🏿" target="_blank"
+        >Give us Feedback 👋🏿</a
+      >
+    </footer>
+
+    <script src="http://localhost:5000/js/auth.js?v=0.2.0"></script>
     <script>
       var login = function () {
         var Auth = new BubblAuth('https://auther.mybubbl.me');
@@ -90,7 +109,7 @@
       };
 
       var logout = function () {
-        var Auth = new BubblAuth('http://localhost:5000');
+        var Auth = new BubblAuth('https://auther.mybubbl.me');
 
         Auth.logout()
           .then((data) => {
