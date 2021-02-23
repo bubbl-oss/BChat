@@ -1,19 +1,22 @@
-const User = require('./classes/User');
-const ChatRoom = require('./classes/ChatRoom');
-const ChatServer = require('./classes/ChatServer');
-const SocketServer = require('./classes/SocketServer');
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  process.exit(1);
+});
 
-const express = require('express'),
-  app = express(),
-  server = require('http').Server(app),
-  io = require('socket.io')(server),
-  eta = require('eta'),
-  path = require('path'),
-  lusca = require('lusca'),
-  errorHandler = require('errorhandler'),
-  Datastore = require('nedb-promises'),
-  socketSession = require('express-socket.io-session'),
-  { nanoid } = require('nanoid');
+require('dotenv').config();
+
+const express = require('express');
+
+const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+const eta = require('eta');
+const path = require('path');
+const lusca = require('lusca');
+const basicAuth = require('express-basic-auth');
+const errorHandler = require('errorhandler');
+const socketSession = require('express-socket.io-session');
+const { nanoid } = require('nanoid');
 
 const cookieSession = require('cookie-session')({
   name: 'bubbl-auth-session',
@@ -21,6 +24,11 @@ const cookieSession = require('cookie-session')({
   // Cookie Options
   maxAge: 7 * 24 * 60 * 60 * 1000, // 24 hours x 7
 });
+const Dbloader = require('./tools/db');
+const { shutdown } = require('./tools/persist-db');
+const SocketServer = require('./classes/SocketServer');
+const ChatServer = require('./classes/ChatServer');
+
 app.use(require('cookie-parser')());
 
 app.use(express.json());
@@ -28,13 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieSession);
 
-var users = []; // map from user id -> user object
-var rooms = []; // array of chat rooms (index is the)
-var connections = [];
-var chatHistory = {}; // map from roomId to array of messages
-var privateMessages = {}; // map from privateRoomId to array of messages
-
-let setCache = function (req, res, next) {
+function setCache(req, res, next) {
   // here you can define period in second, this one is 5 minutes
   const period = 60 * 5;
 
@@ -46,7 +48,7 @@ let setCache = function (req, res, next) {
     res.set('Cache-control', `no-store`);
   }
   next();
-};
+}
 
 /** ETA TEMPLATE ENGINE */
 app.engine('eta', eta.renderFile);
@@ -60,42 +62,18 @@ app.use(lusca.xssProtection(true));
 app.use(lusca.nosniff());
 // app.use(lusca.csrf());
 app.disable('x-powered-by');
-/** security */
-
-const users_collection = Datastore.create({
-  filename: path.resolve(
-    `${path.dirname(require.main.filename)}/db/users-datafile.db`
-  ),
-  autoload: false,
-}).on('load', (s) => {
-  console.log('users collection loaded');
-});
-
-const rooms_collection = Datastore.create({
-  filename: path.resolve(
-    `${path.dirname(require.main.filename)}/db/rooms-datafile.db`
-  ),
-  autoload: false,
-}).on('load', (s) => {
-  console.log('rooms collection loaded');
-});
-
-const db = {
-  users: users_collection,
-  rooms: rooms_collection,
-};
 
 app.use(setCache);
-app.use('/', express.static(__dirname + '/www'));
+app.use('/', express.static(`${__dirname}/www`));
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   if (req.session.bubbl_chat_user_id && req.session.bubbl_chat_signedin) {
     res.locals.bubbl_user = req.session.user;
     res.locals.user_id = req.session.bubbl_chat_user_id;
-    res.locals.nickname = req.session.nickname;
+    res.locals.nickname = req.session.bubbl_chat_nickname;
     res.locals.loggedIn = true;
   }
-  console.log('nicknaaaa', req.session.nickname);
+  console.log('nicknaaaa', req.session.bubbl_chat_nickname);
   res.locals.env = process.env.NODE_ENV;
 
   res.locals.route = {
@@ -108,38 +86,80 @@ app.use(function (req, res, next) {
   next(); // <-- important!
 });
 
-function isBubblAuth(req, res, next) {
-  if (
-    req.session &&
-    req.session.bubbl_chat_signedin &&
-    req.session.bubbl_chat_user_id
-  ) {
-    return next();
-  }
+// function isBubblAuth(req, res, next) {
+//   if (
+//     req.session &&
+//     req.session.bubbl_chat_signedin &&
+//     req.session.bubbl_chat_user_id
+//   ) {
+//     return next();
+//   }
 
-  return res.redirect('/');
-}
+//   return res.redirect('/');
+// }
 
 io.use(socketSession(cookieSession));
 
-const Chat = new ChatServer(db);
+// const Chat = new ChatServer(db);
 
-Chat.loadData().then(() => {
-  new SocketServer(io, Chat);
-});
+// Chat.loadData().then(() => {
+//   // eslint-disable-next-line no-new
+//   new SocketServer(io, Chat);
+// });
+
+let db;
+let Chat;
+
+Dbloader()
+  .then((d) => {
+    db = d;
+    Chat = new ChatServer(db);
+
+    Chat.loadData().then(() => {
+      // eslint-disable-next-line no-new
+      new SocketServer(io, Chat);
+    });
+
+    process
+      .on('SIGTERM', shutdown('SIGTERM', db))
+      .on('SIGINT', shutdown('SIGINT', db))
+      .on('uncaughtException', shutdown('uncaughtException', db));
+  })
+  .catch((err) => {
+    console.error('Error loading database => ', err);
+  });
 
 app.get('/', (req, res) => {
   return res.render('index');
 });
 
 // TODO  add bADICE AUTH!
-app.get('/admin', isBubblAuth, (req, res) => {
-  return res.render('admin');
-});
+app.get(
+  '/admin',
+  basicAuth({
+    users: {
+      admin: 'iloveyou',
+    },
+    challenge: true,
+  }),
+  (req, res) => {
+    return res.render('admin');
+  }
+);
 
 app.get('/delete/users', async (req, res) => {
   await Chat.deleteAllUsers();
   return res.send('Users deleted succesfully!');
+});
+
+app.get('/api/users', async (req, res) => {
+  const users = await Chat.getUsers('db');
+  return res.status(200).json(users);
+});
+
+app.get('/api/rooms', async (req, res) => {
+  const rooms = await Chat.getRooms('db');
+  return res.status(200).json(rooms);
 });
 
 app.get('/delete/rooms', async (req, res) => {
@@ -159,34 +179,32 @@ app.get('/login', async (req, res) => {
     return res.redirect('/app');
   }
 
-  let id = req.session.bubbl_chat_user_id;
-  let current_user = await db.users.findOne({ id });
+  const bubbl_username = req.session.user;
+  const current_user = await db.users.findOne({ username: bubbl_username });
 
   if (current_user) {
     // user already exists!
     req.session.bubbl_chat_signedin = true;
-    req.session.bubbl_chat_user_id = cu.id;
-    req.session.nickname = cu.nickname;
+    req.session.bubbl_chat_user_id = current_user.id;
+    req.session.bubbl_chat_nickname = current_user.nickname;
 
-    Chat.addUser(cu);
+    Chat.addUser(current_user);
 
     return res.redirect('/app');
   }
 
-  // maybe generate random id for user
-
-  let _user_id = nanoid(5);
-  let nickname = `user-${_user_id}`;
+  const _user_id = nanoid(5);
+  const nickname = `user-${_user_id}`;
 
   req.session.bubbl_chat_signedin = true;
   req.session.bubbl_chat_user_id = _user_id;
-  req.session.nickname = nickname;
+  req.session.bubbl_chat_nickname = nickname;
 
   // This is a new user o
-  let u = Chat.addUser({
+  const u = Chat.addUser({
     id: _user_id,
     nickname,
-    bubbl_username: req.query.user || req.session.bubbl_user,
+    bubbl_username: req.query.user || req.session.user,
   });
 
   try {
@@ -220,7 +238,7 @@ app.patch('/change-nickname', (req, res) => {
       req.body.new_nickname
     );
 
-    req.session.nickname = req.body.new_nickname;
+    req.session.bubbl_chat_nickname = req.body.new_nickname;
 
     return res
       .status(200)
