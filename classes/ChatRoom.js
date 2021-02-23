@@ -18,41 +18,40 @@ function ChatRoom(name, founder) {
 }
 
 ChatRoom.prototype = {
-  userCount: function () {
+  userCount() {
     return this.users.length;
   },
 
-  addUser: function (user) {
+  addUser(user) {
     // check if this user already is in the chat
     // we are actually only saving the user's id
-    let u = this.users.findIndex((u) => u == user);
+    const u_index = this.users.findIndex((u) => u == user);
 
-    if (u < 0) {
+    if (u_index < 0) {
       this.users.push(user);
     }
   },
 
-  removeUser: function (user) {
-    for (var i = 0; i < this.users.length; i++) {
-      if (this.users[i] == user) {
-        this.users.splice(i, 1);
-        break;
-      }
+  removeUser(user) {
+    const i = this.users.findIndex((u) => u == user);
+
+    if (i > -1) {
+      this.users.splice(i, 1);
     }
   },
 
-  setName: function (name) {
+  setName(name) {
     this.name = name;
   },
 
-  newMessage: function ({ user, user_id, msg, time, color }) {
-    let m = new Message(user, user_id, msg, this.id, time, color);
+  newMessage({ user, user_id, msg, color, time }) {
+    const m = new Message(user, user_id, this.id, msg, color, time);
 
-    // TODO: find out if the loop is slow!
+    // TODO: save each message in the db...
     this.messages.push(m);
   },
 
-  setMessages: function (messages) {
+  setMessages(messages) {
     this.messages = messages;
   },
 };

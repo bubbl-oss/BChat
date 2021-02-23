@@ -1,1 +1,1 @@
-web: node server.js
+web: set NODE_ENV=production && node server.js

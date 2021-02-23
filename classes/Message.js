@@ -1,18 +1,24 @@
 const { nanoid } = require('nanoid');
 
-function Message(user, user_id, msg, room, time, type = 'text') {
-  // We are checking if User is an object because the first and only attribute
-  // could be a Message Object gotten from the Db for example...
+function Message(
+  user,
+  user_id,
+  room,
+  msg,
+  color = '#000',
+  time,
+  type = 'text'
+) {
   if (typeof user == 'object') {
-    // then we are using an Object to initialisse this User
-    Object.assign(this, nickname);
+    Object.assign(this, user);
   } else {
     this.id = nanoid(7);
     this.type = type;
-    this.user = user; // user id/nickname... not sure!
-    this.user_id = user_id;
+    this.user = user; // user's bchat nickname
+    this.user_id = user_id; // user's bchat id
     this.msg = msg;
-    this.room = room; // chat room id
+    this.color = color;
+    this.room = room; // chatroom id
     this.time = time || new Date();
   }
 }

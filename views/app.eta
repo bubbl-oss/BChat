@@ -21,6 +21,16 @@
       name="description"
       content="Say all the rubbish you want, without accountability! No Moderation, Real Time and No Saved chats!"
     />
+    <style>
+      footer {
+        position: relative;
+        text-align: center;
+        left: 0;
+        bottom: 0;
+        height: 50px;
+        width: 100%;
+      }
+    </style>
     <!-- META TAGS -->
   </head>
   <body>

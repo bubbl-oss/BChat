@@ -46,7 +46,7 @@ BChat.prototype = {
         self.user_id = user_id;
         console.log(nickname);
         if (self.getContext('chatroom')) {
-          document.title = `Bubbl Chat | ${id} - ${nickname}`;
+          // document.title = `Bubbl Chat | ${id} - ${nickname}`;
 
           self.nickname = nickname;
           document.getElementById('login-wrapper').style.display = 'none';
@@ -140,10 +140,11 @@ BChat.prototype = {
             'user:new-msg',
             msg,
             color,
-            new Date().getTime(),
-            self.id
+            new Date(),
+            self.id,
+            self.user_id
           );
-          self._displayNewMsg('me', msg, color, new Date().getTime());
+          self._displayNewMsg('me', msg, color, new Date());
           return;
         }
       },
@@ -160,12 +161,12 @@ BChat.prototype = {
           self.socket.emit(
             'user:new-msg',
             msg,
-            new Date().getTime(),
             color,
+            new Date(),
             self.id,
             self.user_id
           );
-          self._displayNewMsg('me', msg, color, new Date().getTime());
+          self._displayNewMsg('me', msg, color, new Date());
         }
       },
       false
@@ -189,7 +190,7 @@ BChat.prototype = {
               'System',
               "Your browser doesn't support fileReader",
               'red',
-              new Date().getTime()
+              new Date()
             );
             this.value = '';
             return;
@@ -247,19 +248,24 @@ BChat.prototype = {
   },
   _displayNewMsg: function (user, msg, color, time, user_id) {
     var container = document.getElementById('chats'),
-      msgToDisplay = document.createElement('p'),
+      user_el = document.createElement('p'),
+      msgToDisplay = document.createElement('div'),
       date = new Date(time).toTimeString().substr(0, 8),
       //determine whether the msg contains emoji
       msg = this._showEmoji(msg);
+
     msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
     msgToDisplay.style.color = color || '#000';
-    let m = `${user}<span class="timespan">(${date}):</span> ${msg}`;
+    msgToDisplay.setAttribute('class', 'message card my-1');
+    let m = `<p class='card-header message-text'>${msg}</p>`;
+    let user_tag = `<p class='text-muted font-monospace message-label' style='font-size:smaller;color:${
+      color || '#000'
+    } !important'>${user}<span class="timespan">(${date})</span></p>`;
     if (user == 'me' || user_id == this.user_id) {
-      user = 'me';
-      msgToDisplay.setAttribute('class', 'ms-auto my-msg');
-      m = `${msg} <span class="timespan">:(${date})</span>${user}`;
+      msgToDisplay.setAttribute('class', 'message card my-1 ms-auto my-msg');
     }
-    msgToDisplay.innerHTML = m;
+    msgToDisplay.insertAdjacentHTML('afterbegin', user_tag);
+    msgToDisplay.insertAdjacentHTML('afterbegin', m);
     container.appendChild(msgToDisplay);
     container.scrollTop = container.scrollHeight;
   },

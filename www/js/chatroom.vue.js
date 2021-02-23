@@ -50,6 +50,11 @@ if (document.getElementById('vue-app')) {
           this.start();
         }
       },
+      room(newv, oldv) {
+        if (newv) {
+          document.title = `Bubbl Chat | ${this.room.name}`;
+        }
+      },
     },
     mounted() {
       console.log('Chatroom Component Loaded!');

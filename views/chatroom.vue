@@ -25,17 +25,26 @@
           <div class="items">
             <input
               id="color-style"
+              class="btn btn-sm purple-border purple-text"
               type="color"
               placeholder="#000"
               title="font color"
             />
             <div class="btn-group" role="group" aria-label="Chat Controls">
+              <label for="send-image" class="image-label">
+                <input
+                  type="button"
+                  class="btn btn-sm purple-border purple-text"
+                  value="image"
+                />
+                <input id="send-image" type="file" value="image" />
+              </label>
               <button
                 type="button"
                 id="emoji"
                 value="emoji"
                 title="emoji"
-                class="btn btn-sm btn-outline-primary purple-border purple-text"
+                class="btn btn-sm purple-border purple-text"
               >
                 Emoji
               </button>
@@ -59,10 +68,6 @@
                 Leave
               </button>
             </div>
-            <label for="send-image" class="image-label">
-              <input type="button" value="image" />
-              <input id="send-image" type="file" value="image" />
-            </label>
           </div>
           <div class="input-group my-2" style="flex-wrap: initial">
             <input

@@ -37,6 +37,21 @@ body {
   padding: 2px;
   word-wrap: break-word;
 }
+
+#chats .message {
+  width: fit-content;
+  max-width: 80%;
+}
+
+#chats .message .message-text {
+  word-break: break-all;
+  white-space: pre-line;
+  text-align: right;
+}
+
+#chats .message p {
+  margin-bottom: 0;
+}
 #chats img {
   max-width: 99%;
 }
@@ -49,10 +64,13 @@ body {
 .purple-text {
   color: var(--bs-purple) !important;
 }
-.my-msg {
+.message .my-msg {
   word-break: break-all;
-  max-width: 45%;
+  /* max-width: 45%; */
   white-space: pre-line;
+  text-align: right;
+}
+.message.my-msg .message-label {
   text-align: right;
 }
 .wrapper {
