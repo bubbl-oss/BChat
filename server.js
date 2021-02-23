@@ -22,6 +22,13 @@ const cookieSession = require('cookie-session')({
   name: 'bubbl-auth-session',
   keys: ['key'],
   // Cookie Options
+  cookie: {
+    path: '/',
+    domain: ['localhost', 'mybubbl.me'],
+    maxAge: 1000 * 60 * 24, // 24 hours,
+    httpOnly: true,
+    secure: true,
+  },
   maxAge: 7 * 24 * 60 * 60 * 1000, // 24 hours x 7
 });
 const Dbloader = require('./tools/db');
@@ -263,7 +270,8 @@ if (process.env.NODE_ENV.trim() === 'dev') {
   app.use(errorHandler());
 } else {
   // Render an actual error page here :/
-  app.use((err, req, res) => {
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
     console.error(err);
     return res.render('error', { error: err.message });
   });
