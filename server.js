@@ -28,6 +28,7 @@ const cookieSession = require('cookie-session')({
     maxAge: 1000 * 60 * 24, // 24 hours,
     httpOnly: true,
     secure: true,
+    overwrite: false,
   },
   maxAge: 7 * 24 * 60 * 60 * 1000, // 24 hours x 7
 });
@@ -80,6 +81,7 @@ app.use((req, res, next) => {
     res.locals.nickname = req.session.bubbl_chat_nickname;
     res.locals.loggedIn = true;
   }
+  console.log(req.session);
   console.log('nicknaaaa', req.session.bubbl_chat_nickname);
   res.locals.env = process.env.NODE_ENV;
 
