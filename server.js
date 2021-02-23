@@ -18,13 +18,14 @@ const errorHandler = require('errorhandler');
 const socketSession = require('express-socket.io-session');
 const { nanoid } = require('nanoid');
 
+app.use(require('cookie-parser')('thankyoujesus'));
+
 const cookieSession = require('cookie-session')({
-  name: 'bubbl-auth-session',
+  name: 'bubbl-chat-session',
   keys: ['key'],
   // Cookie Options
   cookie: {
     path: '/',
-    domain: '.mybubbl.me',
     maxAge: 1000 * 60 * 24, // 24 hours,
     httpOnly: true,
     secure: true,
@@ -36,8 +37,6 @@ const Dbloader = require('./tools/db');
 const { shutdown } = require('./tools/persist-db');
 const SocketServer = require('./classes/SocketServer');
 const ChatServer = require('./classes/ChatServer');
-
-app.use(require('cookie-parser')());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -76,12 +75,12 @@ app.use('/', express.static(`${__dirname}/www`));
 
 app.use((req, res, next) => {
   if (req.session.bubbl_chat_user_id && req.session.bubbl_chat_signedin) {
-    res.locals.bubbl_user = req.session.user;
+    res.locals.bubbl_user = req.signedCookies['bubbl-user'];
     res.locals.user_id = req.session.bubbl_chat_user_id;
     res.locals.nickname = req.session.bubbl_chat_nickname;
     res.locals.loggedIn = true;
   }
-  console.log(req.session);
+
   console.log('nicknaaaa', req.session.bubbl_chat_nickname);
   res.locals.env = process.env.NODE_ENV;
 
@@ -95,26 +94,7 @@ app.use((req, res, next) => {
   next(); // <-- important!
 });
 
-// function isBubblAuth(req, res, next) {
-//   if (
-//     req.session &&
-//     req.session.bubbl_chat_signedin &&
-//     req.session.bubbl_chat_user_id
-//   ) {
-//     return next();
-//   }
-
-//   return res.redirect('/');
-// }
-
 io.use(socketSession(cookieSession));
-
-// const Chat = new ChatServer(db);
-
-// Chat.loadData().then(() => {
-//   // eslint-disable-next-line no-new
-//   new SocketServer(io, Chat);
-// });
 
 let db;
 let Chat;
@@ -188,7 +168,7 @@ app.get('/login', async (req, res) => {
     return res.redirect('/app');
   }
 
-  const bubbl_username = req.session.user;
+  const bubbl_username = req.signedCookies['bubbl-user'];
   const current_user = await db.users.findOne({ username: bubbl_username });
 
   if (current_user) {
@@ -213,7 +193,7 @@ app.get('/login', async (req, res) => {
   const u = Chat.addUser({
     id: _user_id,
     nickname,
-    bubbl_username: req.query.user || req.session.user,
+    bubbl_username: req.query.user || req.cookies['bubbl-user'],
   });
 
   try {
@@ -229,6 +209,9 @@ app.get('/logout', (req, res) => {
   if (!req.query.user) {
     return res.send('User not logged out correctly!');
   }
+
+  res.clearCookie('bubbl-auth-session', { path: '/', domain: '.mybubbl.me' });
+  res.clearCookie('bubbl-chat-session', { path: '/' });
 
   // Here delete all the things you need to delete and inform all sockets...
   console.log('User logged out successfully! => ', req.query.user);
