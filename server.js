@@ -24,7 +24,7 @@ const cookieSession = require('cookie-session')({
   // Cookie Options
   cookie: {
     path: '/',
-    domain: ['localhost', 'mybubbl.me'],
+    domain: ['localhost', '.mybubbl.me'],
     maxAge: 1000 * 60 * 24, // 24 hours,
     httpOnly: true,
     secure: true,
