@@ -210,8 +210,10 @@ app.get('/logout', (req, res) => {
     return res.send('User not logged out correctly!');
   }
 
+  req.session = null;
   res.clearCookie('bubbl-auth-session', { path: '/', domain: '.mybubbl.me' });
   res.clearCookie('bubbl-chat-session', { path: '/' });
+  // res.clearCookie('bubbl-chat-session.sig', { path: '/' });
 
   // Here delete all the things you need to delete and inform all sockets...
   console.log('User logged out successfully! => ', req.query.user);
