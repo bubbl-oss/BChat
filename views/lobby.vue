@@ -65,7 +65,7 @@
         >
           <router-link :to="`./room/${room.id}`">{{ room.name }}</router-link>
           <div>
-            <span> {{ room.users.length }} users &nbsp; </span>
+            <span> {{ room.users.length }} online &nbsp; </span>
             <button
               class="btn btn-sm btn-success"
               @click="share(room.id, room.name)"

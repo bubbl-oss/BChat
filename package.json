@@ -1,7 +1,7 @@
 {
   "name": "bchat",
   "description": "a realtime chat web application for aun-bubbl",
-  "version": "0.5.0",
+  "version": "0.2.0",
   "main": "server.js",
   "scripts": {
     "dev": "set NODE_ENV=dev && nodemon server.js",
