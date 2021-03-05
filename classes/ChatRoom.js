@@ -5,7 +5,7 @@ function ChatRoom(name, founder) {
   if (typeof name == 'object') {
     Object.assign(this, name);
   } else {
-    this.id = customAlphabet('1234567890abcdef', 6);
+    this.id = customAlphabet('1234567890abcdef', 6)();
     this.name = name;
     this.founder = founder; // user id of founder User
     this.users = [];

@@ -174,6 +174,8 @@ app.get('/login', async (req, res) => {
   }
 
   const bubbl_username = req.signedCookies['bubbl-user'];
+  console.log('Bubbl username => ', bubbl_username);
+  console.log(req.cookies['bubbl-user']);
   const current_user = await db.users.findOne({ username: bubbl_username });
 
   if (current_user) {
@@ -187,7 +189,7 @@ app.get('/login', async (req, res) => {
     return res.redirect('/app');
   }
 
-  const _user_id = customAlphabet('1234567890abcdef', 6);
+  const _user_id = customAlphabet('1234567890abcdef', 6)();
   const nickname = `user-${_user_id}`;
 
   req.session.bubbl_chat_signedin = true;
