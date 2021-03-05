@@ -67,14 +67,14 @@
                 </li>
               </ul>
               <span class="navbar-text">
-                <button
+               <!--  <button
                   class="btn btn-sm btn-info"
                   id="copy-link-btn"
                   :data-clipboard-text="`https://chat.mybubbl.me/app#${$route.path}`"
                 >
-                  <!-- Trigger -->
                   Copy Link
-                </button>
+                </button> -->
+                💜
               </span>
             </div>
           </div>

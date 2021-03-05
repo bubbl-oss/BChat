@@ -45,23 +45,38 @@ ChatServer.prototype = {
       this.users.splice(i, 1);
     }
   },
-  addUserToRoom(user_id, room_id, nickname) {
-    // Change this before going live back to ID
-    const u_index = this.users.findIndex((u) => u.nickname == nickname);
-    const r_index = this.rooms.findIndex((r) => r.id == room_id);
-
-    if (u_index > -1 && r_index > -1) {
-      this.users[u_index].joinRoom(room_id);
-      this.rooms[r_index].addUser(user_id);
-    }
-  },
-  removeUserFromRoom(user_id, room_id) {
+  addUserToRoom(user_id, room_id) {
+    // find user in whole system! lol
     const u_index = this.users.findIndex((u) => u.id == user_id);
     const r_index = this.rooms.findIndex((r) => r.id == room_id);
 
+    // if user exists and room exists!
+    if (u_index > -1 && r_index > -1) {
+      this.users[u_index].joinRoom(room_id);
+      this.rooms[r_index].addUser(user_id);
+
+      this.Db.users.update(
+        { id: user_id },
+        { $push: { rooms: { id: room_id, joined: new Date() } } }
+      );
+      this.Db.rooms.update({ id: room_id }, { $push: { users: user_id } });
+    }
+  },
+  removeUserFromRoom(user_id, room_id) {
+    // find user in whole system! lol
+    const u_index = this.users.findIndex((u) => u.id == user_id);
+    const r_index = this.rooms.findIndex((r) => r.id == room_id);
+
+    // if user is found and room exists!
     if (u_index > -1 && r_index > -1) {
       this.users[u_index].leaveRoom(room_id);
       this.rooms[r_index].removeUser(user_id);
+
+      this.Db.users.update(
+        { id: user_id },
+        { $pull: { rooms: { id: room_id } } }
+      );
+      this.Db.rooms.update({ id: room_id }, { $pull: { users: user_id } });
     }
   },
   async removeRoom(id) {
@@ -133,6 +148,9 @@ ChatServer.prototype = {
   },
   getRoom(id) {
     return this.rooms.find((r) => r.id == id);
+  },
+  async getRoomDb(id) {
+    return this.Db.rooms.findOne({ id });
   },
   async getUser(id) {
     const u2 = this.users.find((u) => u.id == id);

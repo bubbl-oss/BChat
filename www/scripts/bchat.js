@@ -216,9 +216,11 @@ BChat.prototype = {
       false
     );
     document.body.addEventListener('click', function (e) {
-      var emojiWrapper = document.getElementById('emoji-wrapper');
-      if (e.target != emojiWrapper) {
-        emojiWrapper.style.display = 'none';
+      if (self.getContext('chatroom')) {
+        var emojiWrapper = document.getElementById('emoji-wrapper');
+        if (e.target != emojiWrapper) {
+          emojiWrapper.style.display = 'none';
+        }
       }
     });
     document.getElementById('emoji-wrapper').addEventListener(

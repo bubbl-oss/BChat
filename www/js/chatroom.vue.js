@@ -24,6 +24,26 @@ if (document.getElementById('vue-app')) {
       },
       joinRoom: function () {
         window.Chat.socket.emit('user:join-room', this.id);
+        console.log('Joining room');
+      },
+      share: function () {
+        if (navigator.share) {
+          navigator
+            .share({
+              title: `Hey! Join the ${this.room.name || 'Random'} Chatroom`,
+              url:
+                document.location.protocol +
+                document.location.host +
+                `/app/room/${this.id}`,
+            })
+            .then(() => {
+              console.log('Thanks for sharing!');
+            })
+            .catch(console.error);
+        } else {
+          return null;
+          // shareDialog.classList.add('is-open');
+        }
       },
       start: function () {
         window.Chat.setContext('chatroom');

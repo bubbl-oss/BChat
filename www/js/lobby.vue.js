@@ -44,10 +44,29 @@ if (document.getElementById('vue-app')) {
                 res.body.nickname
               );
               window.Chat.nickname = res.body.nickname;
-              this.nickname = '';
+              self.nickname = '';
               return;
             }
           });
+      },
+      share: function (room_id, room_name) {
+        if (navigator.share) {
+          navigator
+            .share({
+              title: `Hey! Join the ${room_name || 'Random'} Chatroom`,
+              url:
+                document.location.protocol +
+                document.location.host +
+                `/app/room/${room_id}`,
+            })
+            .then(() => {
+              console.log('Thanks for sharing!');
+            })
+            .catch(console.error);
+        } else {
+          return null;
+          // shareDialog.classList.add('is-open');
+        }
       },
     },
     computed: {
