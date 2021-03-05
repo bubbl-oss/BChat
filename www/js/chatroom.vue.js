@@ -33,6 +33,7 @@ if (document.getElementById('vue-app')) {
               title: `Hey! Join the ${this.room.name || 'Random'} Chatroom`,
               url:
                 document.location.protocol +
+                '//' +
                 document.location.host +
                 `/app/room/${this.id}`,
             })

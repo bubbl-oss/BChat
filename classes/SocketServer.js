@@ -100,9 +100,10 @@ function SocketServer(io, chat) {
           msg: `welcome to the room ${socket.nickname}`,
           color: 'green',
           time: new Date(),
-        }
+        },
+        room.messages
       ); // for user
-      io.emit('system:update-room', room); // for user
+      io.emit('system:update-room', room); // for all connected clients
       socket
         .to(id)
         .emit('system:user-joined-room', socket.user_id, id, user_count, {
