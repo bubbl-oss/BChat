@@ -17,7 +17,7 @@ const basicAuth = require('express-basic-auth');
 const errorHandler = require('errorhandler');
 const ua = require('express-useragent');
 const socketSession = require('express-socket.io-session');
-const { nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid');
 
 const seo = require('./tools/seo');
 
@@ -187,7 +187,7 @@ app.get('/login', async (req, res) => {
     return res.redirect('/app');
   }
 
-  const _user_id = nanoid(5);
+  const _user_id = customAlphabet('1234567890abcdef', 6);
   const nickname = `user-${_user_id}`;
 
   req.session.bubbl_chat_signedin = true;

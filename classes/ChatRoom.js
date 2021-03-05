@@ -1,11 +1,11 @@
-const { nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid');
 const Message = require('./Message');
 
 function ChatRoom(name, founder) {
   if (typeof name == 'object') {
     Object.assign(this, name);
   } else {
-    this.id = nanoid(5);
+    this.id = customAlphabet('1234567890abcdef', 6);
     this.name = name;
     this.founder = founder; // user id of founder User
     this.users = [];

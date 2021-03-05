@@ -54,9 +54,6 @@
 
         <h4>Chat Rooms</h4>
       </article>
-      <p>
-        {{ rooms[0].users.length }}
-      </p>
       <ul class="list-group" v-if="rooms.length > 0">
         <li
           class="list-group-item d-flex justify-content-between"

@@ -1,4 +1,4 @@
-const { nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid');
 
 function Message(
   user,
@@ -12,7 +12,7 @@ function Message(
   if (typeof user == 'object') {
     Object.assign(this, user);
   } else {
-    this.id = nanoid(7);
+    this.id = customAlphabet('1234567890abcdef', 8);
     this.type = type;
     this.user = user; // user's bchat nickname
     this.user_id = user_id; // user's bchat id
