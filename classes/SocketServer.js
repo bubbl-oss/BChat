@@ -165,21 +165,23 @@ function SocketServer(io, chat) {
 
         const user = await chat.getUser(socket.user_id);
 
-        // remove user from all their rooms...
-        user.rooms.forEach((r) => {
-          chat.removeUserFromRoom(socket.user_id, r.id || r);
-        });
+        if (user) {
+          // remove user from all their rooms...
+          user.rooms.forEach((r) => {
+            chat.removeUserFromRoom(socket.user_id, r.id || r);
+          });
 
-        chat.removeUser(socket.user_id);
+          chat.removeUser(socket.user_id);
 
-        io.emit('system:user-disconnected', socket.user_id); // for user
+          io.emit('system:user-disconnected', socket.user_id); // for user
 
-        socket.to(socket.room).emit('system:disconnect', 'disconnect', {
-          user: 'System ',
-          msg: `${socket.nickname} left the chat.`,
-          color: 'blue',
-          time: new Date(),
-        });
+          socket.to(socket.room).emit('system:disconnect', 'disconnect', {
+            user: 'System ',
+            msg: `${socket.nickname} left the chat.`,
+            color: 'blue',
+            time: new Date(),
+          });
+        }
       }
     });
   });
