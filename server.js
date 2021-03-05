@@ -15,11 +15,16 @@ const path = require('path');
 const lusca = require('lusca');
 const basicAuth = require('express-basic-auth');
 const errorHandler = require('errorhandler');
+const ua = require('express-useragent');
 const socketSession = require('express-socket.io-session');
 const { nanoid } = require('nanoid');
 
+const seo = require('./tools/seo');
+
+app.use(ua.express());
 app.use(require('cookie-parser')('thankyoujesus'));
 
+// eslint-disable-next-line import/order
 const cookieSession = require('cookie-session')({
   name: 'bubbl-chat-session',
   keys: ['key'],
@@ -205,6 +210,14 @@ app.get('/login', async (req, res) => {
   return res.redirect('/app');
 });
 
+function isAuth(req, res, next) {
+  if (!req.session.bubbl_chat_signedin && !req.session.bubbl_chat_user_id) {
+    return res.redirect('/?reason=not_logged_in');
+  }
+
+  return next();
+}
+
 app.get('/logout', (req, res) => {
   if (!req.query.user) {
     return res.send('User not logged out correctly!');
@@ -221,7 +234,67 @@ app.get('/logout', (req, res) => {
   return res.redirect('/');
 });
 
-app.get('/app', (req, res) => {
+app.get('/app#/room/:id', isAuth, async (req, res) => {
+  const room = await Chat.getRoomDb(req.params.id);
+
+  console.log(room);
+
+  if (!room) return res.status(404).send('Room does not exist!');
+  return res.render('app');
+});
+
+app.get('/app#/lobby', isAuth, (req, res) => {
+  return res.render('app');
+});
+
+/** For redirecting to chat room */
+app.get(
+  '/app/room/:id',
+  seo.redirectToVue('/app#/room/', [{ key: 'id' }]),
+  async (req, res) => {
+    // first fetch cahtroom from db, then send page back...
+    if (!req.params.id) return res.status(404).send('Room id not sent!');
+
+    const room = await Chat.getRoomDb(req.params.id);
+
+    console.log(room);
+
+    if (!room)
+      return res
+        .status(404)
+        .send('<html><head><title>Room does not exist!</title></head></html>');
+
+    const title = `Chat in the ${room.name} room | BChat`;
+    const meta = seo.generateMeta(
+      title,
+      `Join other AUN students chatting in ${room.name}`,
+      null,
+      req.baseUrl + req.path,
+      null
+    );
+
+    return res.render('seo/index', { title, meta });
+  }
+);
+
+app.get(
+  '/app/lobby',
+  seo.redirectToVue('/app#/lobby', [{ key: null }]),
+  async (req, res) => {
+    const title = `Find a chatroom in the BChat lobby`;
+    const meta = seo.generateMeta(
+      title,
+      `Find a new chatroom now in the BChat lobby`,
+      null,
+      req.baseUrl + req.path,
+      null
+    );
+
+    return res.render('seo/index', { title, meta });
+  }
+);
+
+app.get('/app', isAuth, (req, res) => {
   return res.render('app');
 });
 

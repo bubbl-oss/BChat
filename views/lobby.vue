@@ -54,6 +54,9 @@
 
         <h4>Chat Rooms</h4>
       </article>
+      <p>
+        {{ rooms[0].users.length }}
+      </p>
       <ul class="list-group" v-if="rooms.length > 0">
         <li
           class="list-group-item d-flex justify-content-between"
@@ -62,9 +65,12 @@
         >
           <router-link :to="`./room/${room.id}`">{{ room.name }}</router-link>
           <div>
-            <span> {{ room.users.length }} users </span>
-            <button class="btn btn-sm" @click="deleteRoom(room.id)">
-              Delete
+            <span> {{ room.users.length }} online &nbsp; </span>
+            <button
+              class="btn btn-sm btn-success"
+              @click="share(room.id, room.name)"
+            >
+              Share!
             </button>
           </div>
         </li>

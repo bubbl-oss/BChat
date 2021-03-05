@@ -23,7 +23,7 @@ function SocketServer(io, chat) {
 
         socket.emit('system:user', u);
 
-        io.sockets.emit(
+        io.emit(
           'system:all-users',
           nickname,
           chat.getUserCount(),
@@ -43,7 +43,7 @@ function SocketServer(io, chat) {
 
       console.log(r);
 
-      io.sockets.emit('system:new-room', r);
+      io.emit('system:new-room', r);
     });
 
     socket.on('user:delete-room', async function (id) {
@@ -63,12 +63,16 @@ function SocketServer(io, chat) {
 
       socket.leave(id);
 
-      socket.emit('system:left-room', id); // for user
+      const room = chat.getRoom(id);
+      const user = await chat.getUser(socket.user_id);
+
+      socket.emit('system:user', user); // for user
+      io.emit('system:update-room', room); // for user
       io.to(id).emit('system:user-left-room', socket.user_id, id); // for other clients
       // io.to(id).emit('system:user-leaving-room', socket.user_id, id); // for members of room
     });
 
-    socket.on('user:join-room', function (id) {
+    socket.on('user:join-room', async function (id) {
       socket.join(id);
 
       socket.room = id;
@@ -79,6 +83,9 @@ function SocketServer(io, chat) {
 
       const room = chat.getRoom(id);
       const user_count = room.userCount();
+      const user = await chat.getUser(socket.user_id);
+
+      socket.emit('system:user', user); // update user
 
       console.log('User nickname!', socket.nickname);
 
@@ -93,9 +100,10 @@ function SocketServer(io, chat) {
           msg: `welcome to the room ${socket.nickname}`,
           color: 'green',
           time: new Date(),
-        }
+        },
+        room.messages
       ); // for user
-      socket.emit('system:room', room); // for user
+      io.emit('system:update-room', room); // for all connected clients
       socket
         .to(id)
         .emit('system:user-joined-room', socket.user_id, id, user_count, {
@@ -131,7 +139,7 @@ function SocketServer(io, chat) {
         .emit('chatroom:new-img', socket.nickname, imgData, color);
     });
 
-    socket.on('user:change-nickname', function (nickname) {
+    socket.on('user:change-nickname', async function (nickname) {
       const old = socket.nickname;
       const _new = nickname;
 
@@ -139,6 +147,8 @@ function SocketServer(io, chat) {
 
       socket.nickname = _new;
       socket.emit('system:change-nickname', nickname);
+      const user = await chat.getUser(socket.user_id);
+      socket.emit('system:user', user); // update user
       io.to(socket.room).emit('system:new-nickname', {
         user: 'System ',
         msg: `${old} is now ${socket.nickname}`,
@@ -148,10 +158,21 @@ function SocketServer(io, chat) {
     });
 
     // user leaves
-    socket.on('disconnect', function () {
+    socket.on('disconnect', async function () {
+      console.log('Disconnecting user', socket.user_id, socket.nickname);
       if (socket.nickname != null) {
         console.log('disconnecting user...');
+
+        const user = await chat.getUser(socket.user_id);
+
+        // remove user from all their rooms...
+        user.rooms.forEach((r) => {
+          chat.removeUserFromRoom(socket.user_id, r.id || r);
+        });
+
         chat.removeUser(socket.user_id);
+
+        io.emit('system:user-disconnected', socket.user_id); // for user
 
         socket.to(socket.room).emit('system:disconnect', 'disconnect', {
           user: 'System ',

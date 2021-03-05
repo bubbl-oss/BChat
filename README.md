@@ -1,17 +1,27 @@
-# Bubbl Chat...
+# Bubbl Chat ⚡
 
-## A chatroom thing for Bubbl (AUN community)
+## minimal version
+
+## An anonymous chatroom for Bubbl (AUN community)
 
 ### TODO:
 
-[ ] Add CONTRIBUTING guide
+- [x] Add chat rooms
 
-[ ] Explain this project? No?
+- [x] Should be able to share chat rooms
 
-[ ] After posting a message, scroll back down to the message
+- [x] Add proper meta tag information
 
-[] Add chat rooms
+# Contributing
 
-[ ] Should be able to share chat rooms?
+- Fork the repo
+- Pick an issue or create an issue about what you want to do
+- Clone your forked repo to your local machine
+- Create a new branch based on that issue
+- CODE
+- Push the feature/fix branch you created to your remote upstream
+- Make a Pull Request
+- we review changes and merge
+- we meuve :)
 
-[ ] Add proper meta tag information
+Thanks!

@@ -41,7 +41,7 @@ BChat.prototype = {
     );
     this.socket.on(
       'system:joined-room',
-      function (id, nickname, user_id, count, m) {
+      function (id, nickname, user_id, count, m, messages) {
         self.id = id;
         self.user_id = user_id;
         console.log(nickname);
@@ -52,6 +52,7 @@ BChat.prototype = {
           document.getElementById('login-wrapper').style.display = 'none';
           document.getElementById('message-input').focus();
           document.getElementById('status').textContent = `${count} online`;
+          self._showOldMessages(messages);
           self._displayNewMsg(m.user, m.msg, m.color, m.time);
         }
       }
@@ -144,7 +145,7 @@ BChat.prototype = {
             self.id,
             self.user_id
           );
-          self._displayNewMsg('me', msg, color, new Date());
+          self._displayNewMsg('me', msg, color, new Date(), self.user_id);
           return;
         }
       },
@@ -166,7 +167,7 @@ BChat.prototype = {
             self.id,
             self.user_id
           );
-          self._displayNewMsg('me', msg, color, new Date());
+          self._displayNewMsg('me', msg, color, new Date(), self.user_id);
         }
       },
       false
@@ -216,9 +217,11 @@ BChat.prototype = {
       false
     );
     document.body.addEventListener('click', function (e) {
-      var emojiWrapper = document.getElementById('emoji-wrapper');
-      if (e.target != emojiWrapper) {
-        emojiWrapper.style.display = 'none';
+      if (self.getContext('chatroom')) {
+        var emojiWrapper = document.getElementById('emoji-wrapper');
+        if (e.target != emojiWrapper) {
+          emojiWrapper.style.display = 'none';
+        }
       }
     });
     document.getElementById('emoji-wrapper').addEventListener(
@@ -246,11 +249,10 @@ BChat.prototype = {
     }
     emojiContainer.appendChild(docFragment);
   },
-  _displayNewMsg: function (user, msg, color, time, user_id) {
+  _displayNewMsg: function (user, msg, color, date, user_id) {
     var container = document.getElementById('chats'),
       user_el = document.createElement('p'),
       msgToDisplay = document.createElement('div'),
-      date = new Date(time).toTimeString().substr(0, 8),
       //determine whether the msg contains emoji
       msg = this._showEmoji(msg);
 
@@ -258,10 +260,22 @@ BChat.prototype = {
     msgToDisplay.style.color = color || '#000';
     msgToDisplay.setAttribute('class', 'message card my-1');
     let m = `<p class='card-header message-text'>${msg}</p>`;
+    let same_user = user_id == this.user_id;
+    let d = moment(new Date(date));
+    let display_date;
+    if (!d.isSame(new Date(), 'day')) {
+      display_date = d.format('DD/M/Y - kk:mm A');
+    } else if (d.isSame(new Date(), 'minute')) {
+      display_date = d.format('[just now]');
+    } else {
+      display_date = d.format('kk:mm A');
+    }
     let user_tag = `<p class='text-muted font-monospace message-label' style='font-size:smaller;color:${
       color || '#000'
-    } !important'>${user}<span class="timespan">(${date})</span></p>`;
-    if (user == 'me' || user_id == this.user_id) {
+    } !important'>${
+      same_user ? 'me' : user
+    }<span class="timespan">(${display_date})</span></p>`;
+    if (same_user) {
       msgToDisplay.setAttribute('class', 'message card my-1 ms-auto my-msg');
     }
     msgToDisplay.insertAdjacentHTML('afterbegin', user_tag);

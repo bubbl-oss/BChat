@@ -67,6 +67,16 @@
               >
                 Leave
               </button>
+              <button
+                type="button"
+                id="shareBtn"
+                value="share"
+                title="share chatroom"
+                class="btn btn-sm btn-success"
+                @click="share()"
+              >
+                Invite Someone!
+              </button>
             </div>
           </div>
           <div class="input-group my-2" style="flex-wrap: initial">

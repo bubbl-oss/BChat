@@ -79,6 +79,15 @@ if (document.getElementById('vue-app')) {
         //   state.rooms.users.splice(user, 1);
         // }
       },
+      updateRoom(state, room) {
+        let room_index = state.rooms.findIndex((r) => r.id == room.id);
+        // let user = state.rooms[room].users.findIndex((u) => u.id == user_id);
+
+        if (room_index > -1) {
+          // state.rooms[room_index] = room;
+          Object.assign(state.rooms[room_index], room);
+        }
+      },
       removeUserFromRoom(state, { user_id, room_id }) {
         if (state.user.id == user_id) {
           // it is user that has left...
@@ -143,7 +152,7 @@ if (document.getElementById('vue-app')) {
         });
 
         window.Chat.socket.on('system:user', function (user) {
-          console.log(user);
+          console.log('setting user =>', user);
           store.commit('setUser', user);
         });
 
@@ -160,6 +169,11 @@ if (document.getElementById('vue-app')) {
         window.Chat.socket.on('system:new-room', function (room) {
           console.log(room);
           store.commit('newRoom', room);
+        });
+
+        window.Chat.socket.on('system:update-room', function (room) {
+          console.log('Room is being updated!', room);
+          store.commit('updateRoom', room);
         });
 
         window.Chat.socket.on('system:change-nickname', function (nickname) {
