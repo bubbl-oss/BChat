@@ -65,6 +65,10 @@
       </nav>
     </header>
 
+    <div v-if="error" class="alert alert-danger">
+      {{ error }}
+    </div>
+
     <router-view></router-view>
   </div>
 

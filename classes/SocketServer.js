@@ -64,6 +64,13 @@ function SocketServer(io, chat) {
       socket.leave(id);
 
       const room = chat.getRoom(id);
+
+      if (!room) {
+        // return error can't connect to room!
+        socket.emit('system:error', 'room does not exist!');
+        return;
+      }
+
       const user = await chat.getUser(socket.user_id);
 
       socket.emit('system:user', user); // for user
@@ -82,6 +89,13 @@ function SocketServer(io, chat) {
       chat.addUserToRoom(socket.user_id, id);
 
       const room = chat.getRoom(id);
+
+      if (!room) {
+        // return error can't connect to room!
+        socket.emit('system:error', 'room does not exist!');
+        return;
+      }
+
       const user_count = room.userCount();
       const user = await chat.getUser(socket.user_id);
 
@@ -148,6 +162,13 @@ function SocketServer(io, chat) {
       socket.nickname = _new;
       socket.emit('system:change-nickname', nickname);
       const user = await chat.getUser(socket.user_id);
+
+      if (!user) {
+        // return error can't connect to room!
+        socket.emit('system:error', 'user does not exist!');
+        return;
+      }
+
       socket.emit('system:user', user); // update user
       io.to(socket.room).emit('system:new-nickname', {
         user: 'System ',

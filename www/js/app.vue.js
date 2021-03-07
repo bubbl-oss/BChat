@@ -6,6 +6,7 @@ if (document.getElementById('vue-app')) {
     activeTab: 0,
     chatLoaded: false,
     rooms: [],
+    error: '',
   };
 
   const routes = [
@@ -156,6 +157,11 @@ if (document.getElementById('vue-app')) {
         window.Chat.socket.on('system:rooms', function (rooms) {
           console.log(rooms);
           store.commit('setRooms', rooms);
+        });
+
+        window.Chat.socket.on('system:error', function (reason) {
+          this.error = reason;
+          this.$router.push('/lobby');
         });
 
         window.Chat.socket.on('system:user', function (user) {
