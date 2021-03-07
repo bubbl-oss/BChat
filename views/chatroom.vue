@@ -2,14 +2,47 @@
   <div>
     <div class="container">
       <div
-        class="align-items-center d-flex header justify-content-center text-center"
+        class="align-items-center d-flex header justify-content-between text-center"
         id="header"
       >
+        <button
+          type="button"
+          id="logoutBtn"
+          value="logout"
+          title="logout"
+          class="btn btn-link"
+          @click="leaveRoom()"
+        >
+          <img src="https://icongr.am/jam/log-out.svg?size=20&color=303030" />
+        </button>
         <h5 class="mb-0 d-inline-block">
           <span v-if="room"> {{ room.name }} </span>
+          &nbsp;&#8226;&nbsp;
+          <span id="status"></span>
         </h5>
-        &nbsp;&#8226;&nbsp;
-        <span id="status"></span>
+
+        <div>
+          <input
+            id="color-style"
+            class="btn btn-sm purple-border purple-text"
+            style="width: 24px;height;24px"
+            type="color"
+            placeholder="#000"
+            title="font color"
+          />
+          <button
+            type="button"
+            id="shareBtn"
+            value="share"
+            title="share chatroom"
+            class="btn btn-sm btn-link"
+            @click="share()"
+          >
+            <img
+              src="https://icongr.am/jam/user-plus.svg?size=20&color=198754"
+            />
+          </button>
+        </div>
       </div>
 
       <div id="main" class="rounded">
@@ -21,8 +54,9 @@
         style="z-index: 1"
         id="footer"
       >
-        <div class="container">
-          <div class="items">
+        <div>
+          <!-- TODO: Later maybe add these functions elsewhere! Thank you Jesus (7/3/21) -->
+          <!-- <div class="items">
             <input
               id="color-style"
               class="btn btn-sm purple-border purple-text"
@@ -57,46 +91,51 @@
               >
                 Clear
               </button>
-              <button
-                type="button"
-                id="logoutBtn"
-                value="logout"
-                title="logout"
-                class="btn btn-sm btn-outline-danger"
-                @click="leaveRoom()"
-              >
-                Leave
-              </button>
-              <button
-                type="button"
-                id="shareBtn"
-                value="share"
-                title="share chatroom"
-                class="btn btn-sm btn-success"
-                @click="share()"
-              >
-                Invite Someone!
-              </button>
             </div>
-          </div>
+          </div> -->
           <div class="input-group my-2" style="flex-wrap: initial">
+            <div class="dropdown dropup">
+              <button
+                class="btn"
+                type="button"
+                id="optionsBtn"
+                data-bs-toggle="dropdown"
+                data-bs-offset="10,10"
+                aria-expanded="false"
+              >
+                <img
+                  src="https://icongr.am/jam/smiley.svg?size=24&color=495057"
+                />
+              </button>
+
+              <ul
+                class="dropdown-menu"
+                aria-labelledby="optionsBtn"
+                style="width: 300px"
+              >
+                <div id="emoji-wrapper"></div>
+              </ul>
+            </div>
+
             <input
               type="text"
-              class="form-control purple-border"
+              class="form-control input-field"
               id="message-input"
               placeholder="Enter to send"
               aria-label="Recipient's username"
               aria-describedby="button-addon2"
             />
             <button
-              class="btn purple-border purple-text"
+              class="btn purple-border bg-purple purple-text"
               type="button"
               id="sendBtn"
             >
-              Send
+              <img
+                src="https://icongr.am/jam/paper-plane.svg?size=24&color=ffffff"
+              />
             </button>
           </div>
-          <div id="emoji-wrapper"></div>
+          <!-- <div id="emoji-wrapper"></div> -->
         </div>
       </div>
     </div>

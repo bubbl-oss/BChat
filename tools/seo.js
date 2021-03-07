@@ -1,4 +1,10 @@
-module.exports.generateMeta = function(title, description, image, url, keywords) {
+module.exports.generateMeta = function (
+  title,
+  description,
+  image,
+  url,
+  keywords
+) {
   return `
   <meta name="title" content="${title}" />
   <meta name="description" content="${description}" />
@@ -16,49 +22,51 @@ module.exports.generateMeta = function(title, description, image, url, keywords)
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="language" content="English" />
   <meta name="keywords" content="${
-    keywords || "Chat,Anonymous Chat,AUN,Bchat"
+    keywords || 'Chat,Anonymous Chat,AUN,Bchat'
   }"/>
   `;
-}
+};
 
-module.exports.redirectToVue = function(route, vars) {
-  return function(req, res, next) {
-  const ua = req.useragent;
+module.exports.redirectToVue = function (route, vars) {
+  return function (req, res, next) {
+    const ua = req.useragent;
 
-  if (
-    ua.isChrome ||
-    ua.isEdge ||
-    ua.isSafari ||
-    ua.isFirefox ||
-    ua.isWebkit ||
-    ua.isOpera ||
-    ua.isOmniweb ||
-    ua.isSeaMonkey ||
-    ua.isFlock ||
-    ua.isAmaya ||
-    ua.isSamsung ||
-    ua.isIE ||
-    ua.isKindleFire ||
-    ua.isBada ||
-    ua.isBlackberry ||
-    ua.isPad ||
-    ua.isWinJs ||
-    ua.isSilk ||
-    ua.isSmartTV ||
-    ua.isUC ||
-    ua.issilkAccelerated ||
-    ua.isAlamoFire
-  ) {
-    // IF it is any of these redirect to the main... app! ${APP_URL}... thank you Jesus!
-    // if it;s /p/:slug use new redirecter
-    // This is the old post link doe...
-    // if (/^\/p\/.*$/.test(req.originalUrl)) {
-    //   return redirectToPost(req, res, next);
-    // }
+    if (
+      !req.xhr ||
+      !req.headers.accept.indexOf('json') > -1 ||
+      ua.isChrome ||
+      ua.isEdge ||
+      ua.isSafari ||
+      ua.isFirefox ||
+      ua.isWebkit ||
+      ua.isOpera ||
+      ua.isOmniweb ||
+      ua.isSeaMonkey ||
+      ua.isFlock ||
+      ua.isAmaya ||
+      ua.isSamsung ||
+      ua.isIE ||
+      ua.isKindleFire ||
+      ua.isBada ||
+      ua.isBlackberry ||
+      ua.isPad ||
+      ua.isWinJs ||
+      ua.isSilk ||
+      ua.isSmartTV ||
+      ua.isUC ||
+      ua.issilkAccelerated ||
+      ua.isAlamoFire
+    ) {
+      let to = route;
 
-    return res.redirect(route + req.params[vars[0].key] && '');
-  }
+      if (vars.length > 0) {
+        // TODO: make more flexible to allow multiple params
+        to += req.params[vars[0].key];
+      }
 
-  return next();
-  }
+      return res.redirect(to);
+    }
+
+    return next();
+  };
 };

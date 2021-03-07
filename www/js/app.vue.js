@@ -124,6 +124,12 @@ if (document.getElementById('vue-app')) {
     },
   });
 
+  const computed = {
+    route: function () {
+      return this.$route.name;
+    },
+  };
+
   // 4. Create and mount the root instance.
   // Make sure to inject the router with the router option to make the
   // whole app router-aware.
@@ -131,6 +137,7 @@ if (document.getElementById('vue-app')) {
   const App = new Vue({
     data,
     router,
+    computed,
     store,
     components: {
       lobby: LobbyComponent,

@@ -64,6 +64,11 @@ body {
 .purple-text {
   color: var(--bs-purple) !important;
 }
+
+.bg-purple {
+  background-color: var(--bs-purple) !important;
+}
+
 .message .my-msg {
   word-break: break-all;
   /* max-width: 45%; */
@@ -142,11 +147,11 @@ body {
   max-height: 50px;
 }
 #emoji-wrapper {
-  display: none;
-  width: 500px;
-  bottom: 105px;
-  position: absolute;
-  background-color: #aaa;
+  /* display: none; */
+  /* width: 500px; */
+  /* bottom: 105px; */
+  /* position: absolute; */
+  background-color: inherit;
   box-shadow: 0 0 10px #555;
 }
 #emoji-wrapper img {
@@ -156,7 +161,7 @@ body {
   height: 25px;
 }
 #emoji-wrapper img:hover {
-  background-color: blue;
+  background-color: var(--bs-purple);
 }
 .emoji {
   display: inline;
