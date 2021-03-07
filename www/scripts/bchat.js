@@ -172,58 +172,58 @@ BChat.prototype = {
       },
       false
     );
-    document.getElementById('clearBtn').addEventListener(
-      'click',
-      function () {
-        self._clearScreen();
-      },
-      false
-    );
-    document.getElementById('send-image').addEventListener(
-      'change',
-      function () {
-        if (this.files.length != 0) {
-          var file = this.files[0],
-            reader = new FileReader(),
-            color = document.getElementById('color-style').value;
-          if (!reader) {
-            self._displayNewMsg(
-              'System',
-              "Your browser doesn't support fileReader",
-              'red',
-              new Date()
-            );
-            this.value = '';
-            return;
-          }
-          reader.onload = function (e) {
-            this.value = '';
-            self.socket.emit('user:img', e.target.result, color);
-            self._displayImage('me', e.target.result, color);
-          };
-          reader.readAsDataURL(file);
-        }
-      },
-      false
-    );
+    // document.getElementById('clearBtn').addEventListener(
+    //   'click',
+    //   function () {
+    //     self._clearScreen();
+    //   },
+    //   false
+    // );
+    // document.getElementById('send-image').addEventListener(
+    //   'change',
+    //   function () {
+    //     if (this.files.length != 0) {
+    //       var file = this.files[0],
+    //         reader = new FileReader(),
+    //         color = document.getElementById('color-style').value;
+    //       if (!reader) {
+    //         self._displayNewMsg(
+    //           'System',
+    //           "Your browser doesn't support fileReader",
+    //           'red',
+    //           new Date()
+    //         );
+    //         this.value = '';
+    //         return;
+    //       }
+    //       reader.onload = function (e) {
+    //         this.value = '';
+    //         self.socket.emit('user:img', e.target.result, color);
+    //         self._displayImage('me', e.target.result, color);
+    //       };
+    //       reader.readAsDataURL(file);
+    //     }
+    //   },
+    //   false
+    // );
     this._initialEmoji();
-    document.getElementById('emoji').addEventListener(
-      'click',
-      function (e) {
-        var emojiWrapper = document.getElementById('emoji-wrapper');
-        emojiWrapper.style.display = 'block';
-        e.stopPropagation();
-      },
-      false
-    );
-    document.body.addEventListener('click', function (e) {
-      if (self.getContext('chatroom')) {
-        var emojiWrapper = document.getElementById('emoji-wrapper');
-        if (e.target != emojiWrapper) {
-          emojiWrapper.style.display = 'none';
-        }
-      }
-    });
+    // document.getElementById('emoji').addEventListener(
+    //   'click',
+    //   function (e) {
+    //     var emojiWrapper = document.getElementById('emoji-wrapper');
+    //     emojiWrapper.style.display = 'block';
+    //     e.stopPropagation();
+    //   },
+    //   false
+    // );
+    // document.body.addEventListener('click', function (e) {
+    //   if (self.getContext('chatroom')) {
+    //     var emojiWrapper = document.getElementById('emoji-wrapper');
+    //     if (e.target != emojiWrapper) {
+    //       emojiWrapper.style.display = 'none';
+    //     }
+    //   }
+    // });
     document.getElementById('emoji-wrapper').addEventListener(
       'click',
       function (e) {
@@ -256,7 +256,7 @@ BChat.prototype = {
       //determine whether the msg contains emoji
       msg = this._showEmoji(msg);
 
-    msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
+    // msg.autoLink({ target: '_blank', rel: 'noopener noreferrer' });
     msgToDisplay.style.color = color || '#000';
     msgToDisplay.setAttribute('class', 'message card my-1');
     let m = `<p class='card-header message-text'>${msg}</p>`;
@@ -280,6 +280,10 @@ BChat.prototype = {
     }
     msgToDisplay.insertAdjacentHTML('afterbegin', user_tag);
     msgToDisplay.insertAdjacentHTML('afterbegin', m);
+    // msgToDisplay.innerText = msgToDisplay.innerText.autoLink({
+    //   target: '_blank',
+    //   rel: 'noopener noreferrer',
+    // });
     container.appendChild(msgToDisplay);
     container.scrollTop = container.scrollHeight;
   },

@@ -226,9 +226,7 @@ app.get('/logout', (req, res) => {
   }
 
   req.session = null;
-  res.clearCookie('bubbl-auth-session', { path: '/', domain: '.mybubbl.me' });
   res.clearCookie('bubbl-chat-session', { path: '/' });
-  // res.clearCookie('bubbl-chat-session.sig', { path: '/' });
 
   // Here delete all the things you need to delete and inform all sockets...
   console.log('User logged out successfully! => ', req.query.user);
@@ -254,12 +252,10 @@ app.get(
   '/app/room/:id',
   seo.redirectToVue('/app#/room/', [{ key: 'id' }]),
   async (req, res) => {
-    // first fetch cahtroom from db, then send page back...
+    // first fetch chatroom from db, then send page back...
     if (!req.params.id) return res.status(404).send('Room id not sent!');
 
     const room = await Chat.getRoomDb(req.params.id);
-
-    console.log(room);
 
     if (!room)
       return res
@@ -279,6 +275,16 @@ app.get(
   }
 );
 
+app.get('/get/rooms/:id', async (req, res) => {
+  if (!req.params.id) return res.status(404).send('Room id not sent!');
+
+  const room = await Chat.getRoomDb(req.params.id);
+
+  if (!room) return res.status(404).send('Room does not exist!');
+
+  return res.status(200).send('Room found!');
+});
+
 app.get(
   '/app/lobby',
   seo.redirectToVue('/app#/lobby', [{ key: null }]),
@@ -296,11 +302,17 @@ app.get(
   }
 );
 
+app.use('/app', (req, res, next) => {
+  console.log('in app');
+  return next();
+});
+
 app.get('/app', isAuth, (req, res) => {
+  console.log('in app x2');
   return res.render('app');
 });
 
-app.patch('/change-nickname', (req, res) => {
+app.patch('/change-nickname', isAuth, (req, res) => {
   if (req.body.new_nickname) {
     Chat.changeUserNickname(
       req.session.bubbl_chat_user_id,

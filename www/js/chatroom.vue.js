@@ -78,11 +78,29 @@ if (document.getElementById('vue-app')) {
       },
     },
     mounted() {
-      console.log('Chatroom Component Loaded!');
-      this.id = this.$route.params.id || '123-poop';
+      if (window.tinyxhr) {
+        console.log('here!');
+        self = this;
+        window.tinyxhr(
+          `/get/rooms/${this.$route.params.id}`,
+          (err, res, xhr) => {
+            if (err) {
+              self.$router.push('/lobby');
+              console.log('Room does not exist!');
+              return;
+            } else {
+              console.log('Chatroom Component Loaded!');
+              this.id = this.$route.params.id || '123-poop';
 
-      if (window.Chat) {
-        this.start();
+              // check if the room exists first!
+
+              if (window.Chat) {
+                console.log('Starting!');
+                this.start();
+              }
+            }
+          }
+        );
       }
     },
   };
