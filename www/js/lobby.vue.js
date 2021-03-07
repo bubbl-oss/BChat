@@ -56,6 +56,7 @@ if (document.getElementById('vue-app')) {
               title: `Hey! Join the ${room_name || 'Random'} Chatroom`,
               url:
                 document.location.protocol +
+                '//' +
                 document.location.host +
                 `/app/room/${room_id}`,
             })
