@@ -32,14 +32,22 @@
           />
           <button
             type="button"
-            id="shareBtn"
+            id="share-room-btn"
             value="share"
-            title="share chatroom"
             class="btn btn-sm btn-link"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            :title="`${shareEnabled ? 'Shared!' : 'Copied!'}`"
+            :data-clipboard-text="copyLink"
             @click="share()"
           >
             <img
+              v-if="shareEnabled"
               src="https://icongr.am/jam/user-plus.svg?size=20&color=198754"
+            />
+            <img
+              v-else
+              src="https://icongr.am/jam/files.svg?size=20&color=198754"
             />
           </button>
         </div>

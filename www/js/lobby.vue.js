@@ -15,6 +15,7 @@ if (document.getElementById('vue-app')) {
     methods: {
       createRoom: function () {
         window.Chat.socket.emit('user:new-room', this.newRoomName);
+        this.newRoomName = '';
       },
       deleteRoom: function (id) {
         window.Chat.socket.emit('user:delete-room', id);
@@ -50,7 +51,7 @@ if (document.getElementById('vue-app')) {
           });
       },
       share: function (room_id, room_name) {
-        if (navigator.share) {
+        if (this.shareEnabled) {
           navigator
             .share({
               title: `Hey! Join the ${room_name || 'Random'} Chatroom`,
@@ -64,10 +65,15 @@ if (document.getElementById('vue-app')) {
               console.log('Thanks for sharing!');
             })
             .catch(console.error);
-        } else {
-          return null;
-          // shareDialog.classList.add('is-open');
         }
+      },
+      copyLink: function (room_id) {
+        return (
+          document.location.protocol +
+          '//' +
+          document.location.host +
+          `/app/room/${room_id}`
+        );
       },
     },
     computed: {
@@ -79,6 +85,9 @@ if (document.getElementById('vue-app')) {
       },
       user: function () {
         return this.$store.getters.user;
+      },
+      shareEnabled: function () {
+        return navigator.share != undefined;
       },
     },
     // Make this a mixin! Thank you Jesus
@@ -95,6 +104,29 @@ if (document.getElementById('vue-app')) {
     },
     mounted() {
       console.log('Lobby Component Loaded!');
+
+      if (!navigator.share && window.ClipboardJS) {
+        let clippy = new ClipboardJS('.room-link-btn');
+
+        clippy.on('success', function (e) {
+          e.clearSelection();
+        });
+
+        clippy.on('error', function (e) {
+          console.error('Error copying text', e);
+        });
+      }
+
+      if (window.bootstrap) {
+        let roomLinkBtns = [].slice.call(
+          document.querySelectorAll('.room-link-btn')
+        );
+
+        let tooltips = roomLinkBtns.map(function (t) {
+          return new window.bootstrap.Tooltip(t);
+        });
+      }
+
       if (window.Chat) {
         window.Chat.setContext('lobby');
       }

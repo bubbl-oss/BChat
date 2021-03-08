@@ -13,12 +13,14 @@
                 placeholder="New Room"
                 aria-label="New Room"
                 aria-describedby="new-room-input"
+                @keydown.enter="createRoom()"
                 v-model="newRoomName"
               />
               <button
                 class="btn btn-outline-secondary"
                 type="button"
                 id="create-room-btn"
+                aria-describedby="new-room-button"
                 @click="createRoom()"
                 :disabled="!newRoomName"
               >
@@ -36,13 +38,15 @@
                 class="form-control"
                 placeholder="Change Nickname"
                 aria-label="Change Nickname"
-                aria-describedby="button-addon2"
+                aria-describedby="change-nickname-input"
+                @keydown.enter="changeNickname()"
                 v-model="nickname"
               />
               <button
                 class="btn btn-outline-secondary"
                 type="button"
                 id="change-nickname-btn"
+                aria-describedby="change-nickname-button"
                 @click="changeNickname()"
                 :disabled="!nickname"
               >
@@ -64,11 +68,16 @@
           <div>
             <span> {{ room.users.length }} online &nbsp; </span>
             <button
-              class="btn btn-sm btn-success"
+              class="btn btn-sm btn-success room-link-btn"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              :title="`${shareEnabled ? 'Shared!' : 'Copied!'}`"
+              :data-clipboard-text="copyLink(room.id)"
               @click="share(room.id, room.name)"
             >
-              Share!
+              {{ shareEnabled ? 'Share!' : 'Copy!' }}
             </button>
+            <!-- TODO: make the copy text better -->
           </div>
         </li>
       </ul>

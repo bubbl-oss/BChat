@@ -58,10 +58,9 @@ BChat.prototype = {
       }
     );
     this.socket.on('system:error', function (err) {
-      if (document.getElementById('login-wrapper').style.display == 'none') {
-        document.getElementById('status').textContent = '!fail to connect :(';
-      } else {
-        document.getElementById('info').textContent = '!fail to connect :(';
+      if (document.getElementById('error-msg')) {
+        document.getElementById('error-msg').style.display = 'block';
+        document.getElementById('error-msg').textContent = err;
       }
     });
     this.socket.on('system:disconnect', function (type, m) {

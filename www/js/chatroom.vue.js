@@ -27,7 +27,7 @@ if (document.getElementById('vue-app')) {
         console.log('Joining room');
       },
       share: function () {
-        if (navigator.share) {
+        if (this.shareEnabled) {
           navigator
             .share({
               title: `Hey! Join the ${this.room.name || 'Random'} Chatroom`,
@@ -41,9 +41,6 @@ if (document.getElementById('vue-app')) {
               console.log('Thanks for sharing!');
             })
             .catch(console.error);
-        } else {
-          return null;
-          // shareDialog.classList.add('is-open');
         }
       },
       start: function () {
@@ -60,6 +57,17 @@ if (document.getElementById('vue-app')) {
         if (this.id) {
           return this.$store.getters.room(this.id);
         }
+      },
+      shareEnabled: function () {
+        return navigator.share != undefined;
+      },
+      copyLink: function () {
+        return (
+          document.location.protocol +
+          '//' +
+          document.location.host +
+          `/app/room/${this.id}`
+        );
       },
     },
     watch: {
@@ -101,6 +109,24 @@ if (document.getElementById('vue-app')) {
             }
           }
         );
+      }
+
+      if (window.bootstrap) {
+        let copyBtn = document.getElementById('share-room-btn');
+        let tooltop = new window.bootstrap.Tooltip(copyBtn);
+      }
+
+      if (!navigator.share && window.ClipboardJS) {
+        let clippy = new ClipboardJS('#share-room-btn');
+
+        clippy.on('success', function (e) {
+          e.clearSelection();
+          console.log(e);
+        });
+
+        clippy.on('error', function (e) {
+          console.error('Error copying text');
+        });
       }
     },
   };

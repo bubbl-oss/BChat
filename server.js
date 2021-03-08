@@ -86,8 +86,11 @@ app.use((req, res, next) => {
     res.locals.loggedIn = true;
   }
 
-  console.log('nicknaaaa', req.session.bubbl_chat_nickname);
   res.locals.env = process.env.NODE_ENV;
+  res.locals.host = req.host;
+
+  console.log('nicknaaaa', req.session.bubbl_chat_nickname);
+  res.locals.env = process.env.NODE_ENV.trim();
 
   res.locals.route = {
     query: req.query,
@@ -175,7 +178,6 @@ app.get('/login', async (req, res) => {
 
   const bubbl_username = req.signedCookies['bubbl-user'];
   console.log('Bubbl username => ', bubbl_username);
-  console.log(req.cookies['bubbl-user']);
   const current_user = await db.users.findOne({ username: bubbl_username });
 
   if (current_user) {
@@ -200,7 +202,7 @@ app.get('/login', async (req, res) => {
   const u = Chat.addUser({
     id: _user_id,
     nickname,
-    bubbl_username: req.query.user || req.cookies['bubbl-user'],
+    bubbl_username: req.query.user || req.signedCookies['bubbl-user'],
   });
 
   try {
